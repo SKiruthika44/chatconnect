@@ -1,0 +1,44 @@
+.user-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #1c1c1c;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.user-item:hover {
+  background: #2a2a2a;
+}
+
+.user-item.selected {
+  background: #333;
+}
+
+.name-status {
+  margin-left: 10px;
+}
+
+.name-status h4 {
+  margin: 0;
+}
+
+.name-status h6 {
+  margin: 0;
+  color: #4da6ff;
+  font-size: 12px;
+}
+
+/* unread badge */
+.unread {
+  margin-left: auto;
+}
+
+.unread-badge {
+  background-color:greenyellow;
+  color: white;
+  padding: 3px 7px;
+  border-radius: 12px;
+  font-size: 18px;
+}

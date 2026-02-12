@@ -1,0 +1,40 @@
+.group-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #1c1c1c;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.group-item:hover {
+  background: #2a2a2a;
+}
+
+.group-item.selected {
+  background: #333;
+}
+
+.group-item img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  margin-right: 10px;
+  
+}
+
+
+
+/* unread badge */
+.unread {
+  margin-left: auto;
+}
+
+.unread-badge {
+  background: #cc0000;
+  color: white;
+  padding: 3px 7px;
+  border-radius: 12px;
+  font-size: 12px;
+}

@@ -1,0 +1,11 @@
+.container {
+  display: flex;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #111;
+  
+  color: #fff;
+  font-family: Arial, sans-serif;
+  overflow: hidden; /* Prevent unwanted scrollbars outside inner scroll areas */
+}
