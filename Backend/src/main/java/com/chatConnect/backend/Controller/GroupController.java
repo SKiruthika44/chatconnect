@@ -37,7 +37,7 @@ public class GroupController {
 
     @GetMapping("/group/messages/{groupname}")
     public List<GroupMessageResponseDTO> getMessagesForGroup(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable String groupname){
-        return groupService.getMessagesForGroup(groupname);
+        return groupService.getMessagesForGroup(userPrincipal.getUsername(), groupname);
     }
 
     @PutMapping("/group/makeRead/{groupname}")

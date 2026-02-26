@@ -28,9 +28,11 @@ public class TranslationService {
         Users user=userRepo.findByUsername(username);
         String targetLang=user.getPreferredLanguage();
         String text= messageService.getMessageContentByMsgId(msgId,type);
+        System.out.println("content"+text);
         String sourceLang=messageService.getTextLanguage(msgId,type);
-        //System.out.println("targetlanguage"+targetLang);
+        System.out.println("targetlanguage"+targetLang);
         String translatedText=translationApi.translate(text,sourceLang,targetLang);
+        System.out.println("traslated text"+translatedText);
         return ResponseEntity.status(200).body(translatedText);
 
     }

@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { CitrusIcon, Stethoscope } from "lucide-react";
 
 const initialState={
     messages:[]
@@ -23,6 +24,27 @@ export const MessageSlice=createSlice({
             //update msg content to translatedcontent
             const updatedMessage=action.payload;
             state.messages=state.messages.map((message,index)=>message.id==updatedMessage.id?{...message,content:updatedMessage.content}:message);
+        },
+        updateMessageDeletion:(state,action)=>{
+            const updatedMessage=action.payload;
+            state.messages=state.messages.map((message)=>message.id==updatedMessage.id?{...message,content:null,deletedForEveryone:updatedMessage.deletedForEveryone}:message);
+        },
+        removeMessage:(state,action)=>{
+            const msgId=action.payload;
+            state.messages=state.messages.filter((message)=>message.id!=msgId);
+        },
+        updatePrivateMessageEmoji:(state,action)=>{
+            const updatedMessage=action.payload;
+            state.messages=state.messages.map((message)=>message.id==updatedMessage.msgId?{...message,emojis:updatedMessage.emojis}:message);
+        },
+        updateGroupMessageEmoji:(state,action)=>{
+            const updatedMessage=action.payload;
+            state.messages=state.messages.map((message)=>message.id==updatedMessage.msgId?{...message,emojisCount:updatedMessage.emojisMap}:message);
+
+        },
+        updateMessage:(state,action)=>{
+            const updatedMessage=action.payload;
+            state.messages=state.messages.map((message)=>message.id==updatedMessage.id?updatedMessage:message);
         }
 
         
@@ -30,5 +52,5 @@ export const MessageSlice=createSlice({
 
 
 })
-export const {setMessages,updateMessageContent,updateMessageStatus,addMessage}=MessageSlice.actions;
+export const {setMessages,updateMessageContent,updateMessageStatus,addMessage,updateMessageDeletion,removeMessage,updatePrivateMessageEmoji,updateGroupMessageEmoji,updateMessage}=MessageSlice.actions;
 export default MessageSlice.reducer;

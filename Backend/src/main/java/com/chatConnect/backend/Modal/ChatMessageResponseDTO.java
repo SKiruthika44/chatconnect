@@ -1,6 +1,8 @@
 package com.chatConnect.backend.Modal;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatMessageResponseDTO {
 
@@ -10,9 +12,12 @@ public class ChatMessageResponseDTO {
     private String senderName;
     private String receiverName;
     private LocalDateTime createdAt;
+    private boolean deletedForEveryone=false;
 
 
     private String status;
+
+    private List<String> emojis;
     public ChatMessageResponseDTO(long id,String content, String senderName, String receiverName, LocalDateTime createdAt,String status) {
         this.id=id;
         this.content = content;
@@ -20,6 +25,8 @@ public class ChatMessageResponseDTO {
         this.receiverName = receiverName;
         this.createdAt = createdAt;
         this.status=status;
+        this.emojis=new ArrayList<>();
+
     }
 
     public long getId() {
@@ -70,5 +77,21 @@ public class ChatMessageResponseDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public boolean isDeletedForEveryone() {
+        return deletedForEveryone;
+    }
+
+    public void setDeletedForEveryone(boolean deletedForEveryone) {
+        this.deletedForEveryone = deletedForEveryone;
+    }
+
+    public List<String> getEmojis() {
+        return emojis;
+    }
+
+    public void setEmojis(List<String> emojis) {
+        this.emojis = emojis;
     }
 }

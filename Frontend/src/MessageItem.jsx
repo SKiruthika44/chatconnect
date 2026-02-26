@@ -1,15 +1,23 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Check,CheckCheck } from 'lucide-react';
+import { Check,CheckCheck ,Edit,Trash} from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { updateMessageContent } from './Slice/MessageSlice';
+import { useState } from 'react';
 import './css/MessageItem.css'
 import axios from 'axios';
 import { getAllMessagesBetween } from './app/services/MessageService';
-const MessageItem = ({msg,token}) => {
+import { getAllMessagesForSelectedGroup } from './app/services/GroupService';
+import DeleteForm from './DeleteForm';
+import SendersList from './SendersList';
+const MessageItem = ({msg,token,stompClient,onEdit}) => {
   const selectedChat=useSelector((state)=>state.chat.selectedChat);
   const loggedInUser=useSelector((state)=>state.user.loggedInUser);
-
+  const [showDeleteForm,setShowDeleteForm]=useState(false);
+  const [showSenderList,setShowSenderList]=useState(false);
+  const [showEmojis,setShowEmojis]=useState(false);
+  const [forwardMessage,setForwardMessage]=useState(null);
+  const reactionEmojis=["👍", "❤️", "😂", "🔥", "😮", "😢"];
    const isSender=(msg.senderName==loggedInUser.username);
    const isGroupMessage=(selectedChat.type=="group");
     const dispatch=useDispatch();
@@ -32,15 +40,40 @@ const MessageItem = ({msg,token}) => {
             content:response.data
 
         }));
-        /*setMessages((prevMessages)=>{
-          return prevMessages.map((message)=>message.id==msgId?{...message,content:response.data}:message)
-        })*/
+        
        
       }
        catch(error){
         console.log(error);
       }
       
+    }
+
+    const handleEmojiApi=async(emoji)=>{
+      try{
+        const response=await axios.put(`http://localhost:8080/message/emoji`,{},{
+          params:{
+            msgId:msg.id,
+          msgType:isGroupMessage?"group":"private",
+          emoji:emoji
+          },
+
+        
+          headers:{
+
+            Authorization:`Bearer ${token}`
+
+          }
+        }
+        );
+        console.log("response",response);
+        setShowEmojis(false);
+
+
+      }
+      catch(error){
+        console.log(error.response);
+      }
     }
 
     const handleDelete=async(scope)=>{
@@ -58,16 +91,37 @@ const MessageItem = ({msg,token}) => {
           
         }) 
         console.log(response);
-        getAllMessagesBetween(token,dispatch);
+        setShowDeleteForm(false);
+       
+        
       }
       catch(error){
         console.log("error",error);
       }
     }
 
+    const handleForward=()=>{
+      console.log(msg.content);
+      setForwardMessage(msg);
+      //console.log(forwardMessage.content);
+      setShowSenderList(true);
+    }
+
+    const closeForward=()=>{
+      setForwardMessage(null);
+      setShowSenderList(false);
+    }
 
   return (
     <div className={`message-item ${isSender ? "sender" : "receiver"}`}>
+        {
+          msg.deletedForEveryone ? <div className="deleted-bubble">
+            <div className="deleted-text">This message was deleted</div>
+            <span className="time">
+                {new Date(msg.createdAt).toLocaleString()}
+            </span>
+          </div> :
+        
         <div className="message-bubble">
         {isGroupMessage && !isSender &&  <div className='sender-name'>{msg.senderName}</div>}
 
@@ -92,28 +146,67 @@ const MessageItem = ({msg,token}) => {
         <span className="time">
           {new Date(msg.createdAt).toLocaleString()}
         </span>
-        <div className='translate-btn' onClick={()=>{handleTranslation(msg.id,isGroupMessage==true?"group":"direct")}}>🌐 Translate</div>
+        <div className="messaage-actions">
+          <div className='translate-btn' onClick={()=>{handleTranslation(msg.id,isGroupMessage==true?"group":"direct")}}>🌐 Translate</div>
+          <div className="delete-icon" onClick={() => setShowDeleteForm(true)}>
+            <Trash size={16} />
+          </div>
+          <div className="forward">
+            <button onClick={(handleForward)}>Forward</button>
+          </div>
+          <div className="edit-button">
+            <Edit onClick={()=>onEdit({
+              msg:msg,
+              type:isGroupMessage?"group":"private"
+            })}/>
+          </div>
+          <div className="emoji-reaction">
+            <button onClick={()=>setShowEmojis(true)}>😊</button>
+          </div>
+          {
+            isGroupMessage?(
+            msg.emojisCount &&
+  Object.entries(msg.emojisCount).map(([emoji, count]) => (
+    <span key={emoji}>
+      {emoji} {count}
+    </span>
+))
+            ):(
+              
+            msg.emojis?.map((emoji,index)=><span key={index}>{emoji}</span>)
+          
+
+        )
+          }
+          
+
+        </div>
         
+
        
-        {
-                isSender==true? (
-                  <div className="dd">
-                    <button onClick={()=>handleDelete("me")}>Delete for me</button>
-                    <button onClick={()=>handleDelete("everyone")}>Delete for everyone</button>
-                    <button>Cancel</button>
-                  </div>
-                ):(
-                  <div className="ddee">
-                    <button onClick={()=>handleDelete("me")}>Delete</button>
-                    <button>Cancel</button>
-                  </div>
-                )
-              }
+        
        
         
        
 
       </div>
+      }
+      {
+        showDeleteForm && <DeleteForm isSender={isSender} handleDelete={handleDelete} setShowDeleteForm={setShowDeleteForm}></DeleteForm>
+      }
+      {
+        showSenderList  && <SendersList stompClient={stompClient} content={msg.content} closeForward={closeForward}/>
+      }
+      {
+        showEmojis && 
+         <div className="emoji-picker">
+         {
+          reactionEmojis.map((emoji,index)=><span key={index} onClick={()=>handleEmojiApi(emoji)}>{emoji}</span>)
+         }
+         </div>
+
+        
+      }
       
     </div>
   )

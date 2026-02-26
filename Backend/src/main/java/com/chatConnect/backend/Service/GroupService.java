@@ -2,11 +2,11 @@ package com.chatConnect.backend.Service;
 
 
 import com.chatConnect.backend.Event.GroupMessageCreatedEvent;
+import com.chatConnect.backend.Event.GroupMessageDeletedEvent;
+import com.chatConnect.backend.Event.GroupMessageEmojiCreatedEvent;
+import com.chatConnect.backend.Event.MessageDeletedForMeEvent;
 import com.chatConnect.backend.Modal.*;
-import com.chatConnect.backend.Repo.ChatMessageRepo;
-import com.chatConnect.backend.Repo.GroupMessageRepo;
-import com.chatConnect.backend.Repo.GroupRepo;
-import com.chatConnect.backend.Repo.UserRepo;
+import com.chatConnect.backend.Repo.*;
 import com.chatConnect.backend.Config.PresenceEventListener;
 
 import jakarta.persistence.EntityManager;
@@ -46,6 +46,12 @@ public class GroupService {
     PresenceEventListener presenceEventListener;
     @Autowired
     ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    GroupMessageDeletedUserRepo groupMessageDeletedUserRepo;
+
+    @Autowired
+    GroupMessageEmojiReactionRepo groupMessageEmojiReactionRepo;
 
     @Autowired
 
@@ -110,11 +116,12 @@ public class GroupService {
         return mpp;
     }
 
-    public List<GroupMessageResponseDTO> getMessagesForGroup(String groupname) {
+    public List<GroupMessageResponseDTO> getMessagesForGroup(String username,String groupname) {
+        Users user=userRepo.findByUsername(username);
 
         GroupChat group=groupRepo.findByGroupName(groupname);
         System.out.println("groupname="+groupname);
-        List<GroupMessage> messages=groupMessageRepo.findByGroupChat(group);
+        List<GroupMessage> messages=groupMessageRepo.findAllVisibleMessagesByUser(user,group,user.getId());
         List<GroupMessageResponseDTO> groupMessages=new ArrayList<>();
         for(GroupMessage groupMessage:messages){
             GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(groupMessage.getId(), groupMessage.getContent(),groupMessage.getCreatedAt(),"SENT",groupMessage.getSender().getUsername(),groupMessage.getGroupChat().getGroupName());
@@ -124,6 +131,17 @@ public class GroupService {
             if(groupMessage.getReadUsers().size()==groupMessage.getGroupChat().getGroupMembers().size()){
                 responseMsg.setStatus("READ");
             }
+            if(groupMessage.isDeletedForEveryone()){
+                responseMsg.setDeletedForEveryone(true);
+                responseMsg.setContent(null);
+            }
+            Map<String,Long> emojisMap=new HashMap<>();
+            List<Object[]> emojis=groupMessageRepo.findEmojisCountForMessage(groupMessage.getId());
+            for(Object[] row:emojis){
+                emojisMap.put((String)row[0],(Long)row[1]);
+            }
+            responseMsg.setEmojisCount(emojisMap);
+
             groupMessages.add(responseMsg);
         }
         return groupMessages;
@@ -252,6 +270,81 @@ public class GroupService {
     }
 
     public ResponseEntity<Void> deleteMessage(String username, long msgId,String scope) {
+        Users user=userRepo.findByUsername(username);
+        Optional<GroupMessage> message=groupMessageRepo.findById(msgId);
+        if(message.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        GroupMessage groupMessage=message.get();
+        GroupChat groupChat=groupMessage.getGroupChat();
+        if(!groupChat.getGroupMembers().contains(user)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        if(scope.equals("everyone") && !groupMessage.getSender().equals(user)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        if(scope.equals("me")){
+            MessageUserId messageUserId=new MessageUserId(msgId,user.getId());
+            GroupMessageDeletedUser groupMessageDeletedUser=new GroupMessageDeletedUser(messageUserId);
+            groupMessageDeletedUserRepo.save(groupMessageDeletedUser);
+            eventPublisher.publishEvent(new MessageDeletedForMeEvent(groupMessage.getId(),user.getUsername()));
+            return ResponseEntity.status(HttpStatus.OK).build();
+
+        }
+        else if(scope.equals("everyone")){
+            groupMessage.setDeletedForEveryone(true);
+            groupMessageRepo.save(groupMessage);
+            System.out.println("publishing....");
+            eventPublisher.publishEvent(new GroupMessageDeletedEvent(groupMessage));
+
+
+        }
+
+
+
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    public ResponseEntity<Void> reactEmoji(String username, long msgId, String emoji) {
+
+        Optional<GroupMessage> msg=groupMessageRepo.findById(msgId);
+        if(msg.isEmpty()){
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        GroupMessage groupMessage=msg.get();
+        Users user=userRepo.findByUsername(username);
+        if(!groupMessage.getGroupChat().getGroupMembers().contains(user)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Boolean exists=groupMessageRepo.existsByMsgIdAndUserId(groupMessage.getId(),user.getId());
+        GroupMessageEmojiReaction groupMessageEmojiReaction;
+        if(exists){
+            groupMessageEmojiReaction=groupMessageRepo.findByMsgIdAndUserId(groupMessage.getId(),user.getId());
+            groupMessageEmojiReaction.setEmoji(emoji);
+            groupMessageEmojiReactionRepo.save(groupMessageEmojiReaction);
+
+        }
+        else{
+            MessageUserId messageUserId=new MessageUserId(groupMessage.getId(),user.getId());
+            groupMessageEmojiReaction=new GroupMessageEmojiReaction(messageUserId,emoji);
+            groupMessageEmojiReactionRepo.save(groupMessageEmojiReaction);
+
+        }
+        Map<String,Long> emojisMap=new HashMap<>();
+        List<Object[]> emojis=groupMessageRepo.findEmojisCountForMessage(groupMessage.getId());
+        for(Object[] row:emojis){
+            emojisMap.put((String)row[0],(Long)row[1]);
+        }
+        for(Map.Entry<String,Long> entry:emojisMap.entrySet()){
+            System.out.println(entry.getKey()+"  "+entry.getValue());
+        }
+        eventPublisher.publishEvent(new GroupMessageEmojiCreatedEvent(groupMessage.getId(),emojisMap,groupMessage.getGroupChat().getId()));
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    public ResponseEntity<Void> editMessage(String username, long msgId, String content) {
+        return ResponseEntity.status(HttpStatus.OK).build();
+
     }
 }

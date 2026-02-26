@@ -11,3 +11,30 @@ export const getAllMessagesBetween=async(token,dispatch)=>{
 
 }
 
+export const sendMessage=async (stompClient,type,content,receiverName) => {
+    if(stompClient){
+        if(type=="group"){
+            stompClient.publish({
+                destination:"/app/group",
+                body:JSON.stringify({
+                    content:content,
+                    groupName:receiverName
+                })
+            })
+        }
+        else{
+            stompClient.publish({
+                destination:"/app/private",
+                body:JSON.stringify({
+                    content:content,
+                    receiver:receiverName
+                })
+            })
+
+        }
+    }
+
+
+    
+}
+

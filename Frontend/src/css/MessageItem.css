@@ -75,9 +75,16 @@
   text-align: right;
 }
 
-.message-bubble .translate-btn {
+.message-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
   margin-top: 6px;
-  display: inline-block;
+}
+
+
+.translate-btn {
   font-size: 12px;
   color: #4da3ff;
   cursor: pointer;
@@ -85,8 +92,54 @@
   transition: 0.2s;
 }
 
-.message-bubble .translate-btn:hover {
+.translate-btn:hover {
   opacity: 1;
   text-decoration: underline;
 }
+
+.delete-icon {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.delete-icon:hover {
+  opacity: 1;
+  color: #ff4d4d;
+}
+
+/* Deleted message bubble */
+.deleted-bubble {
+  max-width: 60%;
+  padding: 10px;
+  border-radius: 6px;
+  background: #1a1a1a;   /* slightly darker than normal bubble */
+  color: #aaa;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* Match sender side color slightly */
+.sender .deleted-bubble {
+  background: #262626;
+}
+
+.deleted-text {
+  font-size: 14px;
+}
+
+/* Time already styled globally */
+.deleted-bubble .time {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #777;
+  text-align: right;
+}
+
+/* Delete icon container */
+
+
 

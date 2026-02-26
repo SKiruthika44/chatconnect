@@ -45,6 +45,9 @@ public class GroupMessage {
 
     private List<Users> readUsers;
 
+    private boolean isDeletedForEveryone=false;
+    private LocalDateTime deletedAt;
+
     public GroupMessage() {
     }
 
@@ -135,4 +138,23 @@ public class GroupMessage {
     public void setDetectedLanguage(String detectedLanguage) {
         this.detectedLanguage = detectedLanguage;
     }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public boolean isDeletedForEveryone() {
+        return isDeletedForEveryone;
+    }
+
+    public void setDeletedForEveryone(boolean deletedForEveryone) {
+        isDeletedForEveryone = deletedForEveryone;
+        this.deletedAt=LocalDateTime.now();
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+
 }

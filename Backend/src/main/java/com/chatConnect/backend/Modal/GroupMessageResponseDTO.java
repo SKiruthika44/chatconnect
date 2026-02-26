@@ -1,6 +1,8 @@
 package com.chatConnect.backend.Modal;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GroupMessageResponseDTO {
 
@@ -14,6 +16,11 @@ public class GroupMessageResponseDTO {
 
     private String groupName;
 
+    private boolean deletedForEveryone=false;
+
+
+    private Map<String,Long> emojisCount;
+
     public GroupMessageResponseDTO(long id,String content, LocalDateTime createdAt, String status, String senderName, String groupName) {
         this.id=id;
         this.content = content;
@@ -21,6 +28,7 @@ public class GroupMessageResponseDTO {
         this.status = status;
         this.senderName = senderName;
         this.groupName = groupName;
+        emojisCount=new HashMap<>();
     }
 
     public String getContent() {
@@ -70,5 +78,22 @@ public class GroupMessageResponseDTO {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public boolean isDeletedForEveryone() {
+        return deletedForEveryone;
+    }
+
+
+    public Map<String, Long> getEmojisCount() {
+        return emojisCount;
+    }
+
+    public void setEmojisCount(Map<String, Long> emojisCount) {
+        this.emojisCount = emojisCount;
+    }
+
+    public void setDeletedForEveryone(boolean deletedForEveryone) {
+        this.deletedForEveryone = deletedForEveryone;
     }
 }

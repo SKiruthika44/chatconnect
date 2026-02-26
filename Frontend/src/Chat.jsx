@@ -12,7 +12,8 @@ import { getLoggedInUser,getAllUsers } from './app/services/UserService';
 import { getAllMessagesBetween } from './app/services/MessageService';
 import { updateDbGroupChatUnreadCount,updateUiGroupChatUnreadCount,updateDbPrivateChatUnreadCount,updateUiPrivateChatUnreadCount } from './app/services/CountService';
 import { getUnReadCountForGroupChat,getUnReadCountForPrivateChat } from './app/services/CountService';
-import { subscribeOnlineUsers,subscribePrivateOnlineUsers,subscribeLastSeen,subscribeGroupMessage,subscribePrivateMessage } from './app/services/SubscriptionService';
+import { subscribeOnlineUsers,subscribePrivateOnlineUsers,subscribeLastSeen,subscribeGroupMessage,subscribePrivateMessage,  subscribeToNotifyDeleteForMe, subscribeToNotifyDeleteForEveryone, subscribeToNotifyPrivateMessageEmojiCreated } from './app/services/SubscriptionService';
+import SendersList from './SendersList';
 const Chat = () => {
     const token=localStorage.getItem("token");
     const [stompClient,setStompClient]=useState(null);
@@ -21,6 +22,7 @@ const Chat = () => {
     const selectedChat=useSelector((state)=>state.chat.selectedChat);
     const [groupCreationForm,setGroupCreationForm]=useState(false);
     const [showEditForm,setShowEditForm]=useState(false);
+    
     useEffect(()=>{
         const socket=new SockJS("http://localhost:8080/ws");
         const client=new Client({
@@ -31,11 +33,17 @@ const Chat = () => {
             Authorization:`Bearer ${token}`,
         };
         client.onConnect=(frame)=>{
+            subscribedGroupRef.current.clear();
+            console.log("subscribing everytime");
             subscribeOnlineUsers(client,dispatch);
             subscribePrivateOnlineUsers(client,dispatch);
             subscribeLastSeen(client,dispatch);
             subscribeGroupMessage(client,dispatch,subscribedGroupRef,token);
             subscribePrivateMessage(client,dispatch,token);
+            subscribeToNotifyDeleteForEveryone(client,dispatch);
+            subscribeToNotifyDeleteForMe(client,dispatch);
+            //subscribeToNotifyPrivateMessageEmojiCreated(client,dispatch);
+            subscribeToNotifyPrivateMessageEmojiCreated(client,dispatch);
             client.publish({
                 destination:"/app/ready",
                 body:"{}"
@@ -60,7 +68,7 @@ const Chat = () => {
         getUnReadCountForPrivateChat(token,dispatch);
         getUnReadCountForGroupChat(token,dispatch);
 
-    },[]);
+    },[token]);
 
     useEffect(()=>{
 
@@ -89,6 +97,7 @@ const Chat = () => {
     
   return (
     <div className="container">
+       
         <SideBar token={token} setGroupCreationForm={setGroupCreationForm} setShowEditForm={setShowEditForm}/>
         { selectedChat && <ChatContainer stompClient={stompClient} token={token} />}
         {
@@ -97,6 +106,7 @@ const Chat = () => {
         {
             showEditForm &&  <EditForm token={token} setShowEditForm={setShowEditForm}/>
         }
+        
       
     </div>
   )

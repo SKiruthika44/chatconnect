@@ -1,7 +1,7 @@
 import { setOnlineUsers, updateLastSeen } from "../../Slice/UserSlice";
 import {setAllGroups, setVisibleGroups}from "../../Slice/GroupSlice";
 import Store from '../Store'
-import { addMessage, updateMessageStatus } from "../../Slice/MessageSlice.js";
+import { addMessage, updateMessageStatus,updateMessageDeletion, removeMessage, updateGroupMessageEmoji, updatePrivateMessageEmoji, updateMessage } from "../../Slice/MessageSlice.js";
 import { updateUnReadCountForGroup } from "../../Slice/CountSlice.js";
 import { getUnReadCountForPrivateChat } from "./CountService.js";
 import { addGroup } from "../../Slice/GroupSlice.js";
@@ -21,6 +21,52 @@ export const subscribePrivateOnlineUsers=(client,dispatch)=>{
         dispatch(setOnlineUsers(onlineUsers));
     })
 }
+
+
+
+export const subscribeToNotifyDeleteForEveryone=(client,dispatch)=>{
+    client.subscribe("/user/queue/delete",(message)=>{
+       
+        const privateMessage=JSON.parse(message.body);
+        console.log(privateMessage);
+        const selectedChat=Store.getState().chat.selectedChat;
+        if(selectedChat?.type=="direct"){
+            if(privateMessage.receiverName==selectedChat.data.username){
+                dispatch(updateMessageDeletion(privateMessage));
+            }
+            else if(privateMessage.senderName==selectedChat.data.username){
+                dispatch(updateMessageDeletion(privateMessage));
+            }
+        }
+    })
+    
+}
+
+export const subscribeToNotifyPrivateMessageEmojiCreated=(client,dispatch)=>{
+    client.subscribe("/user/queue/private/emoji",(msg)=>{
+        const privateMessage=JSON.parse(msg.body);
+        const selectedChat=Store.getState().chat.selectedChat;
+        if(selectedChat?.type=="direct"){
+            const allMessages=Store.getState().message.messages;
+          const message=allMessages.find((message)=>message.id==privateMessage.msgId);
+            if(message){
+                dispatch(updatePrivateMessageEmoji(privateMessage));
+            }
+
+
+        }
+    });
+}
+
+export const subscribeToNotifyDeleteForMe=(client,dispatch)=>{
+    client.subscribe("/user/queue/delete-for-me",(msgId)=>{
+        console.log("msgid");
+        const id=JSON.parse(msgId.body);
+        dispatch(removeMessage(id));
+    })
+}
+
+
 
 export const subscribeLastSeen=(client,dispatch)=>{
     client.subscribe("/topic/lastSeen",(user)=>{
@@ -49,8 +95,27 @@ export const subscribeGroupMessage=(client,dispatch,subscribedGroupRef,token)=>{
                 subscribedGroupRef.current.add(group.id);
                 subscribeToGroup(group.id,client,dispatch,token);
                 subscribeToPrivateGroup(group.id,client,dispatch);
+                subscribeToNotifyIfGroupMessageDeletedForEveryone(group.id,client,dispatch);
+                subscribeToNotifyIfGroupMessageEmojiCreated(group.id,client,dispatch);
             }
         })
+    })
+}
+const subscribeToNotifyIfGroupMessageEmojiCreated=(groupId,client,dispatch)=>{
+    console.log("rrrr");
+    client.subscribe(`/topic/group/emoji/${groupId}`,(msg)=>{
+        const updatedMessage=JSON.parse(msg.body);
+        console.log("message from event:",updatedMessage);
+        const selectedChat=Store.getState().chat.selectedChat;
+        if(selectedChat?.type=="group"){
+            const allMessages=Store.getState().message.messages;
+            const exists=allMessages.find((message)=>message.id==updatedMessage.msgId);
+            if(exists){
+                dispatch(updateGroupMessageEmoji(updatedMessage));
+                console.log("updated message:"+allMessages);
+            }
+
+        }
     })
 }
 
@@ -83,6 +148,15 @@ const subscribeToGroup=(groupId,client,dispatch,token)=>{
         }
     })
 
+}
+const subscribeToNotifyIfGroupMessageDeletedForEveryone=(groupId,client,dispatch)=>{
+    client.subscribe(`/topic/group/delete/${groupId}`,(groupMsg)=>{
+        console.log("deleted group message triggered");
+        const updatedMessage=JSON.parse(groupMsg.body);
+        console.log(updatedMessage);
+        dispatch(updateMessageDeletion(updatedMessage));
+
+    })
 }
 
 const subscribeToPrivateGroup=(groupId,client,dispatch)=>{

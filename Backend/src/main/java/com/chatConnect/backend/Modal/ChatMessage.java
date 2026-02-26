@@ -34,6 +34,9 @@ public class ChatMessage {
     private boolean isRead=false;
 
     private String detectedLanguage;
+    private boolean isDeletedForEveryOne=false;
+
+    private LocalDateTime deletedAt;
 
 
 
@@ -138,5 +141,22 @@ public class ChatMessage {
 
     public void setDetectedLanguage(String detectedLanguage) {
         this.detectedLanguage = detectedLanguage;
+    }
+
+    public boolean isDeletedForEveryOne() {
+        return isDeletedForEveryOne;
+    }
+
+    public void setDeletedForEveryOne(boolean deletedForEveryOne) {
+        isDeletedForEveryOne = deletedForEveryOne;
+        this.deletedAt=LocalDateTime.now();
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }
