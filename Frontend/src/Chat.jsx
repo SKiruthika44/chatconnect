@@ -12,7 +12,7 @@ import { getLoggedInUser,getAllUsers } from './app/services/UserService';
 import { getAllMessagesBetween } from './app/services/MessageService';
 import { updateDbGroupChatUnreadCount,updateUiGroupChatUnreadCount,updateDbPrivateChatUnreadCount,updateUiPrivateChatUnreadCount } from './app/services/CountService';
 import { getUnReadCountForGroupChat,getUnReadCountForPrivateChat } from './app/services/CountService';
-import { subscribeOnlineUsers,subscribePrivateOnlineUsers,subscribeLastSeen,subscribeGroupMessage,subscribePrivateMessage,  subscribeToNotifyDeleteForMe, subscribeToNotifyDeleteForEveryone, subscribeToNotifyPrivateMessageEmojiCreated } from './app/services/SubscriptionService';
+import { subscribeOnlineUsers,subscribePrivateOnlineUsers,subscribeLastSeen,subscribeGroupMessage,subscribePrivateMessage,  subscribeToNotifyDeleteForMe, subscribeToNotifyDeleteForEveryone, subscribeToNotifyPrivateMessageEmojiCreated, subscribeToEditPrivateChat } from './app/services/SubscriptionService';
 import SendersList from './SendersList';
 const Chat = () => {
     const token=localStorage.getItem("token");
@@ -42,7 +42,7 @@ const Chat = () => {
             subscribePrivateMessage(client,dispatch,token);
             subscribeToNotifyDeleteForEveryone(client,dispatch);
             subscribeToNotifyDeleteForMe(client,dispatch);
-            //subscribeToNotifyPrivateMessageEmojiCreated(client,dispatch);
+            subscribeToEditPrivateChat(client,dispatch);
             subscribeToNotifyPrivateMessageEmojiCreated(client,dispatch);
             client.publish({
                 destination:"/app/ready",

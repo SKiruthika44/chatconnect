@@ -15,6 +15,14 @@ export const subscribeOnlineUsers=(client,dispatch)=>{
 
 }
 
+export const subscribeToEditPrivateChat=(client,dispatch)=>{
+    client.subscribe("/user/queue/message/edit",(msg)=>{
+        const updatedMessage=JSON.parse(msg.body);
+        console.log("uda",updateMessage);
+        dispatch(updateMessage(updatedMessage));
+    })
+}
+
 export const subscribePrivateOnlineUsers=(client,dispatch)=>{
     client.subscribe("/user/queue/online",(users)=>{
         const onlineUsers=JSON.parse(users.body);
