@@ -37,6 +37,8 @@ export const UserSlice=createSlice({
         },
         setVisibleUsers:(state,action)=>{
             state.visibleUsers=action.payload;
+            console.log("visible users");
+            console.log(state.visibleUsers);
 
         }
 

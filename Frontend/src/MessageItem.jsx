@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Check,CheckCheck ,Edit,Trash} from 'lucide-react';
+import { Check,CheckCheck ,Edit,Trash,Forward,CornerUpRight, PlusCircle, Smile} from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { updateMessageContent } from './Slice/MessageSlice';
 import { useState } from 'react';
@@ -16,17 +16,17 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
   const [showDeleteForm,setShowDeleteForm]=useState(false);
   const [showSenderList,setShowSenderList]=useState(false);
   const [showEmojis,setShowEmojis]=useState(false);
-  const [forwardMessage,setForwardMessage]=useState(null);
+ 
   const reactionEmojis=["👍", "❤️", "😂", "🔥", "😮", "😢"];
    const isSender=(msg.senderName==loggedInUser.username);
    const isGroupMessage=(selectedChat.type=="group");
     const dispatch=useDispatch();
-   const handleTranslation=async(msgId,type)=>{
+   const handleTranslation=async(msgId)=>{
       try{
         const response=await axios.get("http://localhost:8080/translate",{
           params:{
-            msgId:msgId,
-            type:type
+            msgId:msgId
+            
           },
             headers:{
               Authorization:`Bearer ${token}`
@@ -54,7 +54,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
         const response=await axios.put(`http://localhost:8080/message/emoji`,{},{
           params:{
             msgId:msg.id,
-          msgType:isGroupMessage?"group":"private",
+          
           emoji:emoji
           },
 
@@ -66,7 +66,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
           }
         }
         );
-        console.log("response",response);
+        
         setShowEmojis(false);
 
 
@@ -78,11 +78,11 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
 
     const handleDelete=async(scope)=>{
       try{
-        const type=isGroupMessage==true?"group":"direct";
+        //const type=isGroupMessage==true?"group":"direct";
         const response=await axios.delete(`http://localhost:8080/delete`,{
           params:{
             msgId:msg.id,
-            type:type,
+            
             scope:scope
           },
             headers:{
@@ -102,13 +102,12 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
 
     const handleForward=()=>{
       console.log(msg.content);
-      setForwardMessage(msg);
-      //console.log(forwardMessage.content);
+      
       setShowSenderList(true);
     }
 
     const closeForward=()=>{
-      setForwardMessage(null);
+      
       setShowSenderList(false);
     }
 
@@ -146,34 +145,38 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
         <span className="time">
           {new Date(msg.createdAt).toLocaleString()}
         </span>
-        <div className="messaage-actions">
+        <div className="message-actions">
           <div className='translate-btn' onClick={()=>{handleTranslation(msg.id,isGroupMessage==true?"group":"direct")}}>🌐 Translate</div>
           <div className="delete-icon" onClick={() => setShowDeleteForm(true)}>
             <Trash size={16} />
           </div>
           <div className="forward">
-            <button onClick={(handleForward)}>Forward</button>
+           
+            <CornerUpRight size={16} onClick={handleForward}/>
           </div>
           <div className="edit-button">
-            <Edit onClick={()=>onEdit({
+            <Edit size={16}onClick={()=>onEdit({
               msg:msg,
               type:isGroupMessage?"group":"private"
             })}/>
           </div>
           <div className="emoji-reaction">
-            <button onClick={()=>setShowEmojis(true)}>😊</button>
+            <Smile size={16} onClick={()=>setShowEmojis(true)}/>
+            
           </div>
+          
+          
           {
             isGroupMessage?(
             msg.emojisCount &&
   Object.entries(msg.emojisCount).map(([emoji, count]) => (
-    <span key={emoji}>
+    <span key={emoji} className='chat-emoji'>
       {emoji} {count}
     </span>
 ))
             ):(
               
-            msg.emojis?.map((emoji,index)=><span key={index}>{emoji}</span>)
+            msg.emojis?.map((emoji,index)=><span key={index} className='chat-emoji'>{emoji}</span>)
           
 
         )

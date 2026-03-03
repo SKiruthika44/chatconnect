@@ -41,7 +41,7 @@ const SearchBar = ({token}) => {
     },400);
     return ()=>clearTimeout(timer);
 
-  },[searchText]);
+  },[searchText,allUsers,allGroups]);
   return (
     <div className='search-container'>
         <input type="text" placeholder='Search by name or group...' value={searchText} onChange={(e)=>setSearchText(e.target.value)}/>

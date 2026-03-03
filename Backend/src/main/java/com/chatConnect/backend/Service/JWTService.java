@@ -18,11 +18,7 @@ public class JWTService {
 
     private final String secretKey="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
-    /*public JWTService() throws NoSuchAlgorithmException {
-        KeyGenerator keyGen= KeyGenerator.getInstance("HmacSHA256");
-        SecretKey sk=keyGen.generateKey();
-        secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-    }*/
+
     public String generateToken(String username) {
         Map<String,Object> claims=new HashMap<>();
         return Jwts.builder()

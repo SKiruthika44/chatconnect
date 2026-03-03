@@ -7,7 +7,7 @@
   background-color: rgba(0,0,0,0.7);
 }
 
-/* Center box */
+
 .groupcreate-form {
   width: 350px;
   background-color: #222;
@@ -18,7 +18,7 @@
   border-radius: 8px;
 }
 
-/* Labels */
+
 .groupcreate-form label {
   display: block;
   margin-top: 10px;
@@ -27,7 +27,7 @@
   color: #ccc;
 }
 
-/* Inputs */
+
 .groupcreate-form input[type="text"] {
   box-sizing:border-box;
   width: 100%;
@@ -38,7 +38,7 @@
   border-radius: 4px;
 }
 
-/* User checkboxes area */
+
 .user-checkboxes {
   max-height: 180px;
   overflow-y: auto;
@@ -59,7 +59,7 @@
 
 }
 
-/* Buttons row */
+
 .button-row {
   display: flex;
   justify-content: space-between;
@@ -82,10 +82,10 @@
 .success-msg {
   margin-top: 12px;
   padding: 8px 12px;
-  background-color: #113311;   /* dark green tone */
+  background-color: #113311;   
   border: 1px solid #225522;
   border-radius: 6px;
-  color: #aaffaa;              /* light green text */
+  color: #aaffaa;             
   font-size: 14px;
 }
 

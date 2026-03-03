@@ -1,14 +1,14 @@
 .delete-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7); /* darker overlay for dark theme */
+  background: rgba(0, 0, 0, 0.7); 
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 .delete-modal-box {
-  background: #1e1e1e; /* slightly lighter than #121212 */
+  background: #1e1e1e; 
   padding: 20px;
   border-radius: 8px;
   width: 300px;
@@ -31,7 +31,7 @@
   font-family: Arial, sans-serif;
 }
 
-/* Delete button */
+
 .delete-modal-buttons .danger {
   background: #d32f2f;
   color: white;
@@ -41,7 +41,7 @@
   background: #b71c1c;
 }
 
-/* Cancel button */
+
 .delete-modal-buttons .cancel {
   background: #333;
   color: white;

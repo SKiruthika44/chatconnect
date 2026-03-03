@@ -51,9 +51,6 @@ public class GroupController {
 
     }
 
-    @MessageMapping("/group")
-    public void sendGroupMessage(@AuthenticationPrincipal UserPrincipal userPrincipal,@RequestBody GroupMessageRequestDTO groupMessage){
-        groupService.sendGroupMessage(userPrincipal.getUsername(),groupMessage);
-    }
+
 
 }

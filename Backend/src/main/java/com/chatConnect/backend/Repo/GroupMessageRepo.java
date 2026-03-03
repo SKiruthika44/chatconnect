@@ -15,23 +15,22 @@ import org.springframework.transaction.annotation.Transactional;
 //import org.springframework.transaction.annotation.Propagation;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
 public interface GroupMessageRepo extends JpaRepository<GroupMessage,Long> {
 
 
-    List<GroupMessage> findByGroupChatAndDeliveredUsersNotContaining(GroupChat groupChat, Users receiver);
 
-    List<GroupMessage> findByGroupChatAndReadUsersNotContaining(GroupChat group, Users user);
 
     List<GroupMessage> findByGroupChat(GroupChat group);
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+   /* @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Modifying
     @Query(value="Insert Ignore into `read-users` (`groupmessage-id`,`user-id`) values(:msgId,:userId)",nativeQuery = true)
 
-    void addReadUser(@Param("msgId")Long msgId, @Param("userId")Long userId);
+    void addReadUser(@Param("msgId")Long msgId, @Param("userId")Long userId);*/
 
     @Query(value= """
             select m from GroupMessage m where (m.groupChat=:groupchat) and  not exists (select 1 from GroupMessageDeletedUser d where d.id.userId=:userId and d.id.messageId=m.id) order by m.createdAt asc
@@ -48,4 +47,6 @@ public interface GroupMessageRepo extends JpaRepository<GroupMessage,Long> {
 
     @Query(value="select r.emoji,count(*) from GroupMessageEmojiReaction r where r.id.messageId=:msgId group by r.emoji")
     List<Object[]> findEmojisCountForMessage(@Param("msgId")Long msgId);
+
+    Optional<GroupMessage> findByMsgId(long msgId);
 }

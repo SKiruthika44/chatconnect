@@ -22,8 +22,8 @@ public class TranslationController {
 
     @GetMapping("/translate")
 
-    public ResponseEntity<String> getTranslatedText(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam long msgId, @RequestParam String type){
-        return translationService.translateText(userPrincipal.getUsername(),msgId,type);
+    public ResponseEntity<String> getTranslatedText(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam long msgId){
+        return translationService.translateText(userPrincipal.getUsername(),msgId);
     }
 
 

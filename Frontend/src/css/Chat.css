@@ -7,5 +7,5 @@
   
   color: #fff;
   font-family: Arial, sans-serif;
-  overflow: hidden; /* Prevent unwanted scrollbars outside inner scroll areas */
+  overflow: hidden; 
 }

@@ -1,9 +1,7 @@
 package com.chatConnect.backend.Config;
 
 import com.chatConnect.backend.Modal.*;
-import com.chatConnect.backend.Repo.ChatMessageRepo;
-import com.chatConnect.backend.Repo.GroupMessageRepo;
-import com.chatConnect.backend.Repo.UserRepo;
+import com.chatConnect.backend.Repo.*;
 import com.chatConnect.backend.Service.GroupService;
 import com.chatConnect.backend.Modal.*;
 import jakarta.transaction.Transactional;
@@ -38,6 +36,9 @@ public class PresenceEventListener {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private MessageDeliveryRepo messagedeliveryRepo;
 
     @Autowired
     @Lazy
@@ -83,27 +84,32 @@ public class PresenceEventListener {
         List<GroupChat> joinedGroups=groupService.getAllGroupsForUser(userRepo.findByUsername(username));
         for(GroupChat groupChat:joinedGroups){
             System.out.println("groupchat"+groupChat);
-            List<GroupMessage> messages=groupMessageRepo.findByGroupChatAndDeliveredUsersNotContaining(groupChat,receiver);
 
 
 
-            for (GroupMessage E : messages) {
-                Hibernate.initialize(E.getDeliveredUsers());
-                System.out.println(E.getDeliveredUsers().size());
 
+
+
+            List<GroupMessage> messages=groupMessageRepo.findByGroupChat(groupChat);
+            for(GroupMessage groupMessage:messages){
+                boolean exists=messagedeliveryRepo.existsByMsgIdAndUserIdByCount(groupMessage.getMsg_id(),receiver.getId());
+                if(!exists){
+                    undeliveredGroupMessages.add(groupMessage);
+                }
             }
-            undeliveredGroupMessages.addAll(messages);
+
+
+
         }
         System.out.println(undeliveredGroupMessages);
         for(GroupMessage groupMessage:undeliveredGroupMessages){
-            //groupMessage.getDeliveredUsers();
-            groupMessage.addDeliveredUsers(receiver);
-            groupMessageRepo.save(groupMessage);
-            //System.out.println(chatMessage.getDeliveredUsers());
-            //System.out.println("groupid"+chatMessage.getGroupChat().getId());
-            GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(groupMessage.getId(), groupMessage.getContent(),groupMessage.getCreatedAt(),"SENT",groupMessage.getSender().getUsername(),groupMessage.getGroupChat().getGroupName());
-            //send msg to whoever subscribed to groupid
-            if(groupMessage.getDeliveredUsers().size()==groupMessage.getGroupChat().getGroupMembers().size()){
+
+            MessageUserId messageUserId=new MessageUserId(groupMessage.getMsg_id(),receiver.getId());
+            MessageDelivery messageDelivery=new MessageDelivery(messageUserId);
+            messagedeliveryRepo.save(messageDelivery);
+            GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(groupMessage.getMsg_id(), groupMessage.getContent(),groupMessage.getCreatedAt(),"SENT",groupMessage.getSender().getUsername(),groupMessage.getGroupChat().getGroupName());
+
+            if(messagedeliveryRepo.countByMsgIdAndUserId(groupMessage.getMsg_id())==groupMessage.getGroupChat().getGroupMembers().size()-1){
                 responseMsg.setStatus("DELIVERED");
             }
             simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/group/"+groupMessage.getGroupChat().getId(),responseMsg);
@@ -119,11 +125,21 @@ public class PresenceEventListener {
         List<ChatMessage> unDeliveredMessages=new ArrayList<>();
         String username=user.getUsername();
         Users receiver=userRepo.findByUsername(username);
-        unDeliveredMessages=chatRepo.findByReceiverAndDeliveredFalse(receiver);
+
+        List<ChatMessage> allMessages=new ArrayList<>();
+        allMessages=chatRepo.findByReceiver(receiver);
+        for(ChatMessage chatMessage:allMessages){
+            boolean exists=messagedeliveryRepo.existsByMsgIdAndUserIdByCount(chatMessage.getMsg_id(), receiver.getId());
+            if(!exists){
+                unDeliveredMessages.add(chatMessage);
+            }
+        }
         for(ChatMessage chatMessage:unDeliveredMessages){
-            chatMessage.setDelivered(true);
-            chatRepo.save(chatMessage);
-            ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getId(), chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"DELIVERED");
+
+            MessageUserId messageUserId=new MessageUserId(chatMessage.getMsg_id(), receiver.getId());
+            MessageDelivery messageDelivery=new MessageDelivery(messageUserId);
+            messagedeliveryRepo.save(messageDelivery);
+            ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getMsg_id(), chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"DELIVERED");
             simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/private",responseMsg);
 
             simpMessagingTemplate.convertAndSendToUser(chatMessage.getSender().getUsername(), "/queue/private", responseMsg);

@@ -140,7 +140,12 @@ const subscribeToGroup=(groupId,client,dispatch,token)=>{
             const group=selectedChat.data;
             if(group.groupName==groupMessage.groupName){
                 dispatch(addMessage(groupMessage));
-                setTimeout(()=>updateGroupMessageRead(token,groupMessage.id),200);
+                const loggedInUser=Store.getState().user.loggedInUser;
+                if(loggedInUser.username!=(groupMessage.senderName)){
+                    setTimeout(()=>updateGroupMessageRead(token,groupMessage.id),200);
+
+                }
+                
             }
             else{
                 //if it is an another group

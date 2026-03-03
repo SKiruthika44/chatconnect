@@ -8,7 +8,7 @@ const ChatContainer = ({stompClient,token}) => {
   const [editingMessage,setEditingMessage]=useState(null);
   const onEdit=(msg)=>{
     setEditingMessage(msg);
-    console.log("eding..",editingMessage);
+    console.log("editng..",editingMessage);
   }
   return (
     <div className='chat-container'>

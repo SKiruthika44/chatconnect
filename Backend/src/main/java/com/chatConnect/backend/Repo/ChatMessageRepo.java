@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.messaging.Message;
 
 import java.util.List;
 
@@ -15,13 +16,7 @@ public interface ChatMessageRepo extends JpaRepository<ChatMessage,Long> {
 
     List<ChatMessage> findBySenderAndReceiver(Users user, Users otherUser, Sort sortOption);
 
-    List<ChatMessage> findByReceiverAndIsReadFalse(Users username);
 
-
-
-    List<ChatMessage> findByReceiverAndSenderAndIsReadFalse(Users receiver, Users sender);
-
-    List<ChatMessage> findByReceiverAndDeliveredFalse(Users receiver);
 
 
     @Query(value = """
@@ -48,8 +43,10 @@ public interface ChatMessageRepo extends JpaRepository<ChatMessage,Long> {
 
     PrivateMessageEmojiReaction findByMsgIdAndUserId(@Param("msgId")Long msgId,@Param("userId")Long userId);
 
-    /*@Query(value="select r.emoji from PrivateMessageEmojiReaction r where r.id.messageId=:msgId ")
+    List<ChatMessage> findByReceiver(Users receiver);
 
-    List<String> findEmojisByMessageId(@Param("msgId")Long msgId);*/
+    List<ChatMessage> findByReceiverAndSender(Users receiver, Users sender);
+
+
 
 }

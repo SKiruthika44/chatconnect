@@ -5,11 +5,8 @@ import com.chatConnect.backend.Event.PrivateMessageDeletedEvent;
 import com.chatConnect.backend.Event.MessageDeletedForMeEvent;
 import com.chatConnect.backend.Event.PrivateMessageEditedEvent;
 import com.chatConnect.backend.Modal.*;
-import com.chatConnect.backend.Repo.ChatMessageRepo;
+import com.chatConnect.backend.Repo.*;
 
-import com.chatConnect.backend.Repo.PrivateMessageDeletedUserRepo;
-import com.chatConnect.backend.Repo.PrivateMessageEmojiReactionRepo;
-import com.chatConnect.backend.Repo.UserRepo;
 import com.chatConnect.backend.Config.PresenceEventListener;
 
 import jakarta.transaction.Transactional;
@@ -31,6 +28,12 @@ public class ChatService {
     @Autowired
 
     private ChatMessageRepo chatRepo;
+
+    @Autowired
+    private MessageDeliveryRepo messageDeliveryRepo;
+
+    @Autowired
+    private MessageReadRepo messageReadRepo;
 
     @Autowired
     private GroupService groupService;
@@ -66,12 +69,24 @@ public class ChatService {
 
             Users receiver=userRepo.findByUsername(msg.getReceiver());
             String lang=languageDetectionService.detectLanguage(msg.getContent());
-            ChatMessage chatMessage=new ChatMessage(sender,receiver,msg.getContent(),lang);
+           ChatMessage chatMessage=new ChatMessage(sender,receiver,msg.getContent(),lang);
             chatRepo.save(chatMessage);
-        ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getId(),chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"SENT");
+
+            //add sender to delivered and read
+        MessageUserId senderMessageUserId=new MessageUserId(chatMessage.getMsg_id(), sender.getId());
+        MessageDelivery senderMessageDelivery=new MessageDelivery(senderMessageUserId);
+        messageDeliveryRepo.save(senderMessageDelivery);
+        MessageRead messageRead=new MessageRead(senderMessageUserId);
+        messageReadRepo.save(messageRead);
+
+        ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getMsg_id(),chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"SENT");
 
             if(onlineUsers.contains(receiver.getUsername())){
-                chatMessage.setDelivered(true);
+
+                MessageUserId messageUserId=new MessageUserId(chatMessage.getMsg_id(), receiver.getId());
+                MessageDelivery messageDelivery=new MessageDelivery(messageUserId);
+                messageDeliveryRepo.save(messageDelivery);
+
                 responseMsg.setStatus("DELIVERED");
                 simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/private",responseMsg);
 
@@ -88,13 +103,19 @@ public class ChatService {
     public Map<String,Integer> getUnReadCounts(String username) {
 
        Users user=userRepo.findByUsername(username);
-       List<ChatMessage> allMessages=chatRepo.findByReceiverAndIsReadFalse(user);
 
-       Map<String,Integer> unReadCounts=new HashMap<>();
-       for(ChatMessage msg:allMessages){
-           String sender=msg.getSender().getUsername();
-           unReadCounts.put(sender, unReadCounts.getOrDefault(sender,0)+1);
-       }
+        Map<String,Integer> unReadCounts=new HashMap<>();
+        List<ChatMessage> allMessages=chatRepo.findByReceiver(user);
+        for(ChatMessage chatMessage:allMessages){
+            boolean exists=messageReadRepo.existsByMsgIdAndUserIdByCount(chatMessage.getMsg_id(),user.getId());
+            if(!exists){
+                String sender=chatMessage.getSender().getUsername();
+                unReadCounts.put(sender, unReadCounts.getOrDefault(sender,0)+1);
+            }
+
+        }
+
+
        return unReadCounts;
 
     }
@@ -103,13 +124,23 @@ public class ChatService {
 
         Users receiver=userRepo.findByUsername(username);
         Users sender=userRepo.findByUsername(sendername);
-        List<ChatMessage> allMessages=chatRepo.findByReceiverAndSenderAndIsReadFalse(receiver,sender);
-
-        System.out.println("allMessages"+allMessages);
+        List<ChatMessage> unReadMessages=new ArrayList<>();
+        //List<ChatMessage> allMessages=chatRepo.findByReceiverAndSenderAndIsReadFalse(receiver,sender);
+        List<ChatMessage> allMessages=chatRepo.findByReceiverAndSender(receiver,sender);
         for(ChatMessage chatMessage:allMessages){
-            chatMessage.setRead(true);
-            chatRepo.save(chatMessage);
-            ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getId(), chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"READ");
+            boolean exists=messageReadRepo.existsByMsgIdAndUserIdByCount(chatMessage.getMsg_id(), receiver.getId());
+            if(!exists){
+                unReadMessages.add(chatMessage);
+            }
+        }
+        System.out.println("allMessages"+allMessages);
+        for(ChatMessage chatMessage:unReadMessages){
+
+            MessageUserId messageUserId=new MessageUserId(chatMessage.getMsg_id(), receiver.getId());
+            MessageRead messageRead=new MessageRead(messageUserId);
+            messageReadRepo.save(messageRead);
+
+            ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getMsg_id(), chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"READ");
 
             simpMessagingTemplate.convertAndSendToUser(chatMessage.getSender().getUsername(),"/queue/private",responseMsg);
         }
@@ -125,10 +156,14 @@ public class ChatService {
         Optional<ChatMessage> optionalMessage=chatRepo.findById(msgId);
         if(optionalMessage.isPresent()){
             ChatMessage chatMessage=optionalMessage.get();
-            chatMessage.setRead(true);
-            chatRepo.save(chatMessage);
-            ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getId(), chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"READ");
-            simpMessagingTemplate.convertAndSendToUser(chatMessage.getSender().getUsername(),"/queue/private",responseMsg);
+
+            if(!chatMessage.getSender().equals(user)){ //sender cannot update read
+                MessageUserId messageUserId=new MessageUserId(chatMessage.getMsg_id(), user.getId());
+                MessageRead messageRead=new MessageRead(messageUserId);
+                messageReadRepo.save(messageRead);
+                ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getMsg_id(), chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"READ");
+                simpMessagingTemplate.convertAndSendToUser(chatMessage.getSender().getUsername(),"/queue/private",responseMsg);
+            }
         }
 
     }
@@ -141,22 +176,23 @@ public class ChatService {
         Users otherUser=userRepo.findByUsername((otherUsername));
         Sort sortOption=Sort.by(Sort.Direction.ASC,"createdAt");
 
-        /*List<ChatMessage> messages1=chatRepo.findBySenderAndReceiver(user,otherUser,sortOption);
-        List<ChatMessage> messages2=chatRepo.findBySenderAndReceiver(otherUser,user,sortOption);
-        allMessages.addAll(messages1);
-        allMessages.addAll(messages2);
-        allMessages.sort(Comparator.comparing(ChatMessage::getCreatedAt));*/
+
         List<ChatMessage> allMessages = new ArrayList<>(chatRepo.findAllVisibleMessageBetweenSenderAndReceiver(user, otherUser, user.getId()));
         for(ChatMessage chatMessage:allMessages){
-            List<String> emojis=chatRepo.findEmojisByMessageId(chatMessage.getId());
-            ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getId(),chatMessage.getContent(),chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"SENT");
-            if(chatMessage.isDelivered()){
+            List<String> emojis=chatRepo.findEmojisByMessageId(chatMessage.getMsg_id());
+            ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getMsg_id(),chatMessage.getContent(),chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"SENT");
+            Users receiver=chatMessage.getReceiver();
+            boolean delivered=messageDeliveryRepo.existsByMsgIdAndUserIdByCount(chatMessage.getMsg_id(), receiver.getId());
+            if(delivered){
                 responseMsg.setStatus("DELIVERED");
             }
-            if(chatMessage.isRead()){
+            boolean read=messageReadRepo.existsByMsgIdAndUserIdByCount(chatMessage.getMsg_id(), receiver.getId());
+            if(read){
                 responseMsg.setStatus("READ");
             }
-            if(chatMessage.isDeletedForEveryOne()){
+
+
+            if(chatMessage.isDeletedForEveryone()){
                 responseMsg.setDeletedForEveryone(true);
                 responseMsg.setContent(null);
             }
@@ -192,18 +228,18 @@ public class ChatService {
         }
         if(scope.equals("everyone")){
             System.out.println("everyone");
-            msg.setDeletedForEveryOne(true);
+            msg.setDeletedForEveryone(true);
             chatRepo.save(msg);
             eventPublisher.publishEvent(new PrivateMessageDeletedEvent(msg));
             return ResponseEntity.status(HttpStatus.OK).build();
 
         }
         else if(scope.equals("me")){
-            MessageUserId messageUserId=new MessageUserId(msg.getId(),user.getId());
+            MessageUserId messageUserId=new MessageUserId(msg.getMsg_id(),user.getId());
             PrivateMessageDeletedUser deletedUser=new PrivateMessageDeletedUser(messageUserId);
 
             privateMessageDeletedUserRepo.save(deletedUser);
-            eventPublisher.publishEvent(new MessageDeletedForMeEvent(msg.getId(),user.getUsername()));
+            eventPublisher.publishEvent(new MessageDeletedForMeEvent(msg.getMsg_id(),user.getUsername()));
 
         }
 
@@ -228,10 +264,10 @@ public class ChatService {
         }
         System.out.println("request processing");
         System.out.println("emoji="+emoji);
-        Boolean exists=chatRepo.existsMessageUserId(chatMessage.getId(),user.getId());
+        Boolean exists=chatRepo.existsMessageUserId(chatMessage.getMsg_id(),user.getId());
         PrivateMessageEmojiReaction privateMessageEmojiReaction;
         if(!exists){
-            MessageUserId messageUserId=new MessageUserId(chatMessage.getId(),user.getId());
+            MessageUserId messageUserId=new MessageUserId(chatMessage.getMsg_id(),user.getId());
             privateMessageEmojiReaction=new PrivateMessageEmojiReaction(messageUserId,emoji);
             privateMessageEmojiReactionRepo.save(privateMessageEmojiReaction);
 
@@ -241,11 +277,11 @@ public class ChatService {
             privateMessageEmojiReaction.setEmoji(emoji);
             privateMessageEmojiReactionRepo.save(privateMessageEmojiReaction);
         }
-        List<String> emojis=chatRepo.findEmojisByMessageId(chatMessage.getId());
+        List<String> emojis=chatRepo.findEmojisByMessageId(chatMessage.getMsg_id());
         for(String e:emojis){
             System.out.println("emoji:"+e);
         }
-        eventPublisher.publishEvent(new EmojiCreatedEvent(chatMessage.getId(),chatMessage.getSender()
+        eventPublisher.publishEvent(new EmojiCreatedEvent(chatMessage.getMsg_id(),chatMessage.getSender()
                 .getUsername(),chatMessage.getReceiver().getUsername(),emojis));
         System.out.println("emoji="+privateMessageEmojiReaction.getEmoji());
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -258,7 +294,7 @@ public class ChatService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         ChatMessage chatMessage=msg.get();
-        if(!chatMessage.getSender().getUsername().equals(user.getUsername()) && !chatMessage.getReceiver().getUsername().equals(user.getUsername())){
+        if(!chatMessage.getSender().getUsername().equals(user.getUsername())){//only sender can edit the msg
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         chatMessage.setContent(content);

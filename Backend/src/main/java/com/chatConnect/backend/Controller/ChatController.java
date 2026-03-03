@@ -46,14 +46,7 @@ public class ChatController {
 
 
 
-    @MessageMapping("/private")
 
-    public void sendMessage(UserPrincipal userPrincipal, ChatMessageDTO msg){
-        String username=userPrincipal.getUsername();
-        chatService.sendMessage(username,msg);
-
-
-    }
 
 
     @GetMapping("/unreadCounts")

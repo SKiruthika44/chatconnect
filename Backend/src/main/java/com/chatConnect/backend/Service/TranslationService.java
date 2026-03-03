@@ -23,16 +23,16 @@ public class TranslationService {
     TranslationApi translationApi;
 
 
-    public ResponseEntity<String> translateText(String username, long msgId, String type) {
+    public ResponseEntity<String> translateText(String username, long msgId) {
 
         Users user=userRepo.findByUsername(username);
         String targetLang=user.getPreferredLanguage();
-        String text= messageService.getMessageContentByMsgId(msgId,type);
+        String text= messageService.getMessageContentByMsgId(msgId);
         System.out.println("content"+text);
-        String sourceLang=messageService.getTextLanguage(msgId,type);
+        String sourceLang=messageService.getTextLanguage(msgId);
         System.out.println("targetlanguage"+targetLang);
         String translatedText=translationApi.translate(text,sourceLang,targetLang);
-        System.out.println("traslated text"+translatedText);
+        System.out.println("translated text"+translatedText);
         return ResponseEntity.status(200).body(translatedText);
 
     }

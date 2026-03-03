@@ -16,6 +16,7 @@ export const GroupSlice=createSlice({
         },
         addGroup:(state,action)=>{
             state.allGroups=[...state.allGroups,action.payload];
+            state.visibleGroups=[...state.visibleGroups,action.payload];
 
         },
         setVisibleGroups:(state,action)=>{

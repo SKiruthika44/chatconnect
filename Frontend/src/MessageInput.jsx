@@ -32,8 +32,8 @@ const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
         try{
           const resp=await axios.put(`http://localhost:8080/message/edit/${msgId}`,{},{
             params:{
-               content:privateInput,
-            type:type
+               content:privateInput
+            
 
             }
           

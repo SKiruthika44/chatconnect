@@ -5,38 +5,17 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@DiscriminatorValue("DIRECT")
 
-public class ChatMessage {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class ChatMessage extends Message{
 
 
-    @ManyToOne
-    @JoinColumn(name="sender-id",nullable=false)
-    private Users sender;
 
     @ManyToOne
     @JoinColumn(name="receiver-id")
     private Users receiver;
 
-    @Column(nullable = false)
 
-    private String content;
-
-
-
-
-    private LocalDateTime createdAt;
-
-    private boolean delivered=false;
-    private boolean isRead=false;
-
-    private String detectedLanguage;
-    private boolean isDeletedForEveryOne=false;
-
-    private LocalDateTime deletedAt;
 
 
 
@@ -46,11 +25,9 @@ public class ChatMessage {
 
 
     public ChatMessage( Users sender, Users receiver, String content,String detectedLanguage) {
+        super(content,detectedLanguage,sender);
+        this.receiver=receiver;
 
-        this.sender = sender;
-        this.receiver = receiver;
-        this.content = content;
-        this.detectedLanguage=detectedLanguage;
 
 
     }
@@ -59,20 +36,12 @@ public class ChatMessage {
 
     }
 
-    public long getId() {
-        return id;
-    }
 
-    public void setId(long id) {
-        this.id = id;
-    }
 
-    public Users getSender() {
-        return sender;
-    }
 
-    public void setSender(Users sender) {
-        this.sender = sender;
+
+    public void setReceiver(Users receiver) {
+        this.receiver = receiver;
     }
 
     public Users getReceiver() {
@@ -80,62 +49,8 @@ public class ChatMessage {
     }
 
 
-    @PrePersist
-    protected void OnCreate(){
-        this.createdAt=LocalDateTime.now();
-    }
-    public void setReceiver(Users receiver) {
-        this.receiver = receiver;
-    }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-
-    public boolean isDelivered() {
-        return delivered;
-    }
-
-    public void setDelivered(boolean delivered) {
-        this.delivered = delivered;
-    }
-
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean read) {
-        this.isRead = read;
-    }
-
-    @Override
-    public String toString() {
-        return "ChatMessage{" +
-                "id=" + id +
-                ", sender=" + sender.getUsername() +
-
-                ", content='" + content + '\'' +
-                ", createdAt=" + createdAt +
-                ", delivered=" + delivered + "isRead" + isRead +
-                '}';
-    }
-
-    public String getDetectedLanguage() {
+/* public String getDetectedLanguage() {
         return detectedLanguage;
     }
 
@@ -159,4 +74,12 @@ public class ChatMessage {
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
+
+    public Users getReceiver() {
+        return receiver;
+    }
+    public void setReceiver(Users receiver) {
+        this.receiver = receiver;
+    }*/
+
 }

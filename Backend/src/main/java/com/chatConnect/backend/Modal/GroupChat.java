@@ -15,7 +15,7 @@ public class GroupChat {
     private String groupName;
     private LocalDateTime createdAt;
 
-    @ManyToMany//to  also remove the groupmembers if groupchat is removed,if this cascade is not coded,then if you try to delete any groupchat row,it says error,first remove the groupmemebrs for this groupchat,then remove the groupchat,so...
+    @ManyToMany
     @JoinTable(
             name="group_members",
             joinColumns=@JoinColumn(name="group_id"),

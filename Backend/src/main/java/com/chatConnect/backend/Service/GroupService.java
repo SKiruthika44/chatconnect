@@ -43,9 +43,15 @@ public class GroupService {
     GroupMessageRepo groupMessageRepo;
 
     @Autowired
+    private MessageDeliveryRepo messageDeliveryRepo;
+
+    @Autowired
     PresenceEventListener presenceEventListener;
     @Autowired
     ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private MessageReadRepo messageReadRepo;
 
     @Autowired
     GroupMessageDeletedUserRepo groupMessageDeletedUserRepo;
@@ -107,11 +113,19 @@ public class GroupService {
         Map<String,Integer> mpp=new HashMap<>();
         Users receiver=userRepo.findByUsername(username);
         List<GroupChat> joinedGroups=getAllGroupsForUser(receiver);
-        //List<ChatMessage> unReadMessages=new ArrayList<>();
+
         for(GroupChat group:joinedGroups){
-            List<GroupMessage> messages=groupMessageRepo.findByGroupChatAndReadUsersNotContaining(group,receiver);
-            mpp.put(group.getGroupName(),messages.size());
-            //unReadMessages.addAll(messages);
+            int count=0;
+            //List<GroupMessage> messages=groupMessageRepo.findByGroupChatAndReadUsersNotContaining(group,receiver);
+            List<GroupMessage> allMessages=groupMessageRepo.findByGroupChat(group);
+            for(GroupMessage groupMessage:allMessages){
+                boolean exists=messageReadRepo.existsByMsgIdAndUserIdByCount(groupMessage.getMsg_id(), receiver.getId());
+                if(!exists){
+                    count+=1;
+                }
+            }
+            mpp.put(group.getGroupName(),count);
+
         }
         return mpp;
     }
@@ -124,19 +138,23 @@ public class GroupService {
         List<GroupMessage> messages=groupMessageRepo.findAllVisibleMessagesByUser(user,group,user.getId());
         List<GroupMessageResponseDTO> groupMessages=new ArrayList<>();
         for(GroupMessage groupMessage:messages){
-            GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(groupMessage.getId(), groupMessage.getContent(),groupMessage.getCreatedAt(),"SENT",groupMessage.getSender().getUsername(),groupMessage.getGroupChat().getGroupName());
-            if(groupMessage.getDeliveredUsers().size()==groupMessage.getGroupChat().getGroupMembers().size()){
+            GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(groupMessage.getMsg_id(), groupMessage.getContent(),groupMessage.getCreatedAt(),"SENT",groupMessage.getSender().getUsername(),groupMessage.getGroupChat().getGroupName());
+
+            long deliveredCount=messageDeliveryRepo.countByMsgIdAndUserId(groupMessage.getMsg_id());
+            long readCount=messageReadRepo.countReadUsers(groupMessage.getMsg_id());
+            if(deliveredCount==groupMessage.getGroupChat().getGroupMembers().size()){
                 responseMsg.setStatus("DELIVERED");
             }
-            if(groupMessage.getReadUsers().size()==groupMessage.getGroupChat().getGroupMembers().size()){
+            if(readCount==groupMessage.getGroupChat().getGroupMembers().size()){
                 responseMsg.setStatus("READ");
             }
+
             if(groupMessage.isDeletedForEveryone()){
                 responseMsg.setDeletedForEveryone(true);
                 responseMsg.setContent(null);
             }
             Map<String,Long> emojisMap=new HashMap<>();
-            List<Object[]> emojis=groupMessageRepo.findEmojisCountForMessage(groupMessage.getId());
+            List<Object[]> emojis=groupMessageRepo.findEmojisCountForMessage(groupMessage.getMsg_id());
             for(Object[] row:emojis){
                 emojisMap.put((String)row[0],(Long)row[1]);
             }
@@ -151,14 +169,26 @@ public class GroupService {
 
         Users user=userRepo.findByUsername(username);
         GroupChat group=groupRepo.findByGroupName(groupname);
-        List<GroupMessage> messages=groupMessageRepo.findByGroupChatAndReadUsersNotContaining(group,user);
-        for(GroupMessage message:messages){
-            message.addReadUsers(user);
-            if(message.getReadUsers().size()==message.getGroupChat().getGroupMembers().size()){
-                GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(message.getId(),message.getContent(),message.getCreatedAt(),"READ",message.getSender().getUsername(),message.getGroupChat().getGroupName());
+        //List<GroupMessage> messages=groupMessageRepo.findByGroupChatAndReadUsersNotContaining(group,user);
+        List<GroupMessage> messages=groupMessageRepo.findByGroupChat(group);
+        List<GroupMessage> unReadMessages=new ArrayList<>();
+        for(GroupMessage groupMessage:messages){
+            boolean exists=messageReadRepo.existsByMsgIdAndUserIdByCount(groupMessage.getMsg_id(),user.getId());
+            if(!exists){
+                unReadMessages.add(groupMessage);
+            }
+        }
+        for(GroupMessage message:unReadMessages){
+
+            MessageUserId messageUserId=new MessageUserId(message.getMsg_id(), user.getId());
+            MessageRead messageRead=new MessageRead(messageUserId);
+            messageReadRepo.save(messageRead);
+            long readUsersCount=messageReadRepo.countReadUsers(message.getMsg_id());
+            if(readUsersCount==message.getGroupChat().getGroupMembers().size()){
+                GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(message.getMsg_id(),message.getContent(),message.getCreatedAt(),"READ",message.getSender().getUsername(),message.getGroupChat().getGroupName());
                 simpMessagingTemplate.convertAndSendToUser(message.getSender().getUsername(),"/queue/group/"+message.getGroupChat().getId(),responseMsg);
             }
-            groupMessageRepo.save(message);
+
         }
 
     }
@@ -168,53 +198,22 @@ public class GroupService {
     public  synchronized void markGroupMessageRead(String username, long msgId) {
 
         Users user=userRepo.findByUsername(username);
-        Optional<GroupMessage> message= Optional.empty();
-        int retries=10;
-        for (int i = 0; i < retries; i++) {
-            message = groupMessageRepo.findById(msgId);
-            if (message.isPresent()) break;
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {}
-        }
+        Optional<GroupMessage> optionalMessage= groupMessageRepo.findByMsgId(msgId);
 
-        if(message.isPresent()){
 
-            GroupMessage m=message.get();
+        if(optionalMessage.isPresent()) {
+           GroupMessage groupMessage = optionalMessage.get();
+           if(!groupMessage.getSender().equals(user)){ //sender cannot update read
+               MessageUserId messageUserId=new MessageUserId(groupMessage.getMsg_id(), user.getId());
+               MessageRead messageRead=new MessageRead(messageUserId);
+               messageReadRepo.save(messageRead);
+               GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(groupMessage.getMsg_id(),groupMessage.getContent(),groupMessage.getCreatedAt(),"READ",groupMessage.getSender().getUsername(),groupMessage.getGroupChat().getGroupName());
+               simpMessagingTemplate.convertAndSendToUser(groupMessage.getSender().getUsername(),"/queue/group/"+groupMessage.getGroupChat().getId(),responseMsg);
 
-            groupMessageRepo.addReadUser(m.getId(),user.getId());
-            //groupMessageRepo.save(m);
-            /*try {
-                Thread.sleep(9000); /
-            } catch (InterruptedException ignored) {}
-            for(Users users:m.getReadUsers()){
-                System.out.println("read user name"+users.getUsername());
-            }*/
 
-            //Optional<GroupMessage> msgs=groupMessageRepo.findById(m.getId());
+           }
 
-            entityManager.flush();
-            entityManager.refresh(m);
 
-            GroupMessage updatedMessage=groupMessageRepo.findById(m.getId()).get();
-            System.out.println(username+" "+msgId+" "+updatedMessage.getReadUsers().size()+" "+updatedMessage.getGroupChat().getGroupMembers().size());
-            /*for(Users readUser:updatedMessage.getReadUsers()){
-                System.out.println("read username:"+readUser.getUsername());
-            }*/
-            if(updatedMessage.getReadUsers().size()==updatedMessage.getGroupChat().getGroupMembers().size()-1){
-
-               for(Users users:m.getReadUsers()){
-                   System.out.println(users.getUsername());
-               }
-                System.out.println("groupembers size="+m.getReadUsers().size());
-                GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(updatedMessage.getId(),updatedMessage.getContent(),updatedMessage.getCreatedAt(),"READ",updatedMessage.getSender().getUsername(),updatedMessage.getGroupChat().getGroupName());
-                simpMessagingTemplate.convertAndSendToUser(m.getSender().getUsername(),"/queue/group/"+updatedMessage.getGroupChat().getId(),responseMsg);
-            }
-            //groupMessageRepo.save(m);
-        }
-        else{
-
-            System.out.println(username+"message is missing");
         }
 
     }
@@ -222,7 +221,7 @@ public class GroupService {
     @Transactional
 
     public void sendGroupMessage(String senderUsername, GroupMessageRequestDTO groupMessage) {
-        Set<String> onlineUsers=presenceEventListener.getOnlineUsers();
+
 
         Users sender=userRepo.findByUsername(senderUsername);
         GroupChat group=groupRepo.findByGroupName(groupMessage.getGroupName());
@@ -232,16 +231,25 @@ public class GroupService {
 
         groupMessageRepo.save(createdMessage);
 
+        //add sender to delivery and read
+        MessageUserId senderMessageUserId=new MessageUserId(createdMessage.getMsg_id(), sender.getId());
+        MessageDelivery senderMessageDelivery=new MessageDelivery(senderMessageUserId);
+        messageDeliveryRepo.save(senderMessageDelivery);
+        MessageRead messageRead=new MessageRead(senderMessageUserId);
+        messageReadRepo.save(messageRead);
+
+        Set<String> onlineUsers=presenceEventListener.getOnlineUsers();
         List<Users> receivers=group.getGroupMembers();
         for(Users receiver:receivers){
             if(onlineUsers.contains(receiver.getUsername())){
-                createdMessage.addDeliveredUsers(receiver);
+                MessageUserId messageUserId=new MessageUserId(createdMessage.getMsg_id(),receiver.getId());
+                MessageDelivery messageDelivery=new MessageDelivery(messageUserId);
+                messageDeliveryRepo.save(messageDelivery);
+                //createdMessage.addDeliveredUsers(receiver);
 
             }
         }
-        groupMessageRepo.save(createdMessage);
 
-        //publish event to send message after commit
         eventPublisher.publishEvent(new GroupMessageCreatedEvent(createdMessage));
 
 
@@ -287,7 +295,7 @@ public class GroupService {
             MessageUserId messageUserId=new MessageUserId(msgId,user.getId());
             GroupMessageDeletedUser groupMessageDeletedUser=new GroupMessageDeletedUser(messageUserId);
             groupMessageDeletedUserRepo.save(groupMessageDeletedUser);
-            eventPublisher.publishEvent(new MessageDeletedForMeEvent(groupMessage.getId(),user.getUsername()));
+            eventPublisher.publishEvent(new MessageDeletedForMeEvent(groupMessage.getMsg_id(),user.getUsername()));
             return ResponseEntity.status(HttpStatus.OK).build();
 
         }
@@ -316,29 +324,29 @@ public class GroupService {
         if(!groupMessage.getGroupChat().getGroupMembers().contains(user)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Boolean exists=groupMessageRepo.existsByMsgIdAndUserId(groupMessage.getId(),user.getId());
+        Boolean exists=groupMessageRepo.existsByMsgIdAndUserId(groupMessage.getMsg_id(),user.getId());
         GroupMessageEmojiReaction groupMessageEmojiReaction;
         if(exists){
-            groupMessageEmojiReaction=groupMessageRepo.findByMsgIdAndUserId(groupMessage.getId(),user.getId());
+            groupMessageEmojiReaction=groupMessageRepo.findByMsgIdAndUserId(groupMessage.getMsg_id(),user.getId());
             groupMessageEmojiReaction.setEmoji(emoji);
             groupMessageEmojiReactionRepo.save(groupMessageEmojiReaction);
 
         }
         else{
-            MessageUserId messageUserId=new MessageUserId(groupMessage.getId(),user.getId());
+            MessageUserId messageUserId=new MessageUserId(groupMessage.getMsg_id(),user.getId());
             groupMessageEmojiReaction=new GroupMessageEmojiReaction(messageUserId,emoji);
             groupMessageEmojiReactionRepo.save(groupMessageEmojiReaction);
 
         }
         Map<String,Long> emojisMap=new HashMap<>();
-        List<Object[]> emojis=groupMessageRepo.findEmojisCountForMessage(groupMessage.getId());
+        List<Object[]> emojis=groupMessageRepo.findEmojisCountForMessage(groupMessage.getMsg_id());
         for(Object[] row:emojis){
             emojisMap.put((String)row[0],(Long)row[1]);
         }
         for(Map.Entry<String,Long> entry:emojisMap.entrySet()){
             System.out.println(entry.getKey()+"  "+entry.getValue());
         }
-        eventPublisher.publishEvent(new GroupMessageEmojiCreatedEvent(groupMessage.getId(),emojisMap,groupMessage.getGroupChat().getId()));
+        eventPublisher.publishEvent(new GroupMessageEmojiCreatedEvent(groupMessage.getMsg_id(),emojisMap,groupMessage.getGroupChat().getId()));
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

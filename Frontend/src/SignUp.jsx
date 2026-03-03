@@ -93,7 +93,7 @@ const SignUp = () => {
             <p className='login-link'>
               Already have an account? <a href='/login'>Login</a>
             </p>
-            <h2>{username}</h2>
+           
               </div>
 
             
