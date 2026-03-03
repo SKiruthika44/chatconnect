@@ -46,6 +46,16 @@ The application is built using Spring Boot (backend) and React.js (frontend) wit
 - Chat sidebar with personal and group chats
 - Clear message bubbles
 - Emoji and translation options inside messages
+- 
+## Screenshots
+### 1.User Authentication (Signup & Login)
+![image alt](https://github.com/SKiruthika44/chatconnect/blob/8a3224b6bd71024f1647f484c5b6690a4ce6ed48/register%20and%20login.png)
+### 2. Private chat Message status-Sent,Delivered,Read
+![image alt](https://github.com/SKiruthika44/chatconnect/blob/8a3224b6bd71024f1647f484c5b6690a4ce6ed48/Message%20status.png)
+### 3.Private chat-Emoji,Translation,Delete Features
+![image alt](https://github.com/SKiruthika44/chatconnect/blob/9831c5ba7b6612b3eb6bec7d2f7ec808601796ea/Delete%20feature.png)
+### 4.Group Chat–Full Conversation Flow with Unread Count
+![image alt](https://github.com/SKiruthika44/chatconnect/blob/8a3224b6bd71024f1647f484c5b6690a4ce6ed48/Groupchat%20with%20unread%20count.png)
 
 ## Tech Stack
 ### Backend
