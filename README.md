@@ -1,138 +1,89 @@
-#ChatConnect – Real-Time Chat Application
-Overview
+# ChatConnect – Real-Time Chat Application
+## Overview
 
 ChatConnect is a full-stack real-time chat application that supports private messaging and group chats with advanced messaging features such as delivery status tracking, emoji reactions, message translation, and message deletion.
 
 The application is built using Spring Boot (backend) and React.js (frontend) with WebSocket-based real-time communication.
 
-##Features
-##Authentication
+## Features
+### Authentication
 
-User Signup
+- User Signup
+- User Login
+- JWT-based secure authentication
+- Protected routes after login
 
-User Login
+### Private Chat Features
 
-JWT-based secure authentication
+- Real-time one-to-one messaging
+- Message Sent status
+- Message Delivered status
+- Message Read status
+- Online status of user
+- Last seen of user
+- Edit message
+- Delete for me
+- Delete for everyone
+- Emoji reactions
+- Forward message
+- Message translation based on preferred language
+- Unread message count display
 
-Protected routes after login
+### Group Chat Features
 
-##Private Chat Features
+- Create group chats
+- Real-time group messaging
+- Emoji reactions with count
+- Edit message
+- Delete for me
+- Delete for everyone
+- Forward message
+- Unread message count
+- Message translation support
+  
+## UI
+- Simple and clean dark theme
+- Chat sidebar with personal and group chats
+- Clear message bubbles
+- Emoji and translation options inside messages
 
-Real-time one-to-one messaging
+## Tech Stack
+### Backend
+- Java
+- Spring Boot
+- Spring Security
+- JWT Authentication
+- WebSocket (STOMP)
+- JPA / Hibernate
+- MySQL
 
-Message Sent status
+### Frontend
+- React.js
+- Redux
+- WebSocket (SockJS + STOMP Client)
+- CSS
 
-Message Delivered status
+## How It Works 
+- WebSocket is used for real-time messaging.
+- Messages are stored in MySQL database.
+- Separate delivery tracking is used for sent, delivered, and read status.
+- JWT is used for secure login and API protection.
+- Unread count is calculated based on message read status.
+- Preferred language is stored for each user for translation feature.
 
-Message Read status
+##  How to Run Locally
 
-Online status of user
+### Backend
 
-Last seen of user
+```bash
+cd backend
+mvn spring-boot:run
+```
 
-Edit message
+### Frontend
 
-Delete for me
-
-Delete for everyone
-
-Emoji reactions
-
-Forward message
-
-Message translation based on preferred language
-
-Unread message count display
-
-##Group Chat Features
-
-Create group chats
-
-Real-time group messaging
-
-Emoji reactions with count
-
-Edit message
-
-Delete message
-
-Forward message
-
-Unread message count
-
-Online users visibility
-
-Message translation support
-
-##UI
-
-Simple and clean dark theme
-
-Chat sidebar with personal and group chats
-
-Clear message bubbles
-
-Emoji and translation options inside messages
-
-##Tech Stack
-Backend
-
-Java
-
-Spring Boot
-
-Spring Security
-
-JWT Authentication
-
-WebSocket (STOMP)
-
-JPA / Hibernate
-
-MySQL
-
-Maven
-
-Frontend
-
-React.js
-
-Redux
-
-Axios
-
-WebSocket (SockJS + STOMP Client)
-
-CSS
-
-Tools
-
-Git & GitHub
-
-Postman
-
-IntelliJ IDEA
-
-VS Code
-##How It Works 
-
-WebSocket is used for real-time messaging.
-
-Messages are stored in MySQL database.
-
-Separate delivery tracking is used for sent, delivered, and read status.
-
-JWT is used for secure login and API protection.
-
-Unread count is calculated based on message read status.
-
-Preferred language is stored for each user for translation feature.
-
-##How to Run Locally
-Backend
-  cd backend
-  mvn spring-boot:run
-Frontend
-  cd frontend
-  npm install
-  npm start
+```bash
+cd frontend
+npm install
+npm start
+```
