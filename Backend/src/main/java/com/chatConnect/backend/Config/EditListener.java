@@ -1,9 +1,7 @@
 package com.chatConnect.backend.Config;
 
-import com.chatConnect.backend.Event.PrivateMessageEditedEvent;
-import com.chatConnect.backend.Modal.ChatMessage;
-import com.chatConnect.backend.Modal.ChatMessageResponseDTO;
-import com.chatConnect.backend.Modal.Users;
+import com.chatConnect.backend.Event.MessageEditedEvent;
+import com.chatConnect.backend.Modal.*;
 import com.chatConnect.backend.Repo.MessageDeliveryRepo;
 import com.chatConnect.backend.Repo.MessageReadRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,24 +24,38 @@ public class EditListener {
     private MessageReadRepo messageReadRepo;
 
     @EventListener
-    public void notifyPrivateMessageEdited(PrivateMessageEditedEvent privateMessageEditedEvent){
-        ChatMessage chatMessage=privateMessageEditedEvent.getChatMessage();
-        ChatMessageResponseDTO chatMessageResponseDTO=new ChatMessageResponseDTO(chatMessage.getMsg_id(), chatMessage.getContent(),chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"SENT");
+    public void notifyPrivateMessageEdited(MessageEditedEvent messageEditedEvent){
+       Message editedMessage=messageEditedEvent.getChatMessage();
 
 
-        Users receiver=chatMessage.getReceiver();
-        boolean delivered=messageDeliveryRepo.existsByMsgIdAndUserIdByCount(chatMessage.getMsg_id(), receiver.getId());
-        if(delivered){
-            chatMessageResponseDTO.setStatus("DELIVERED");
+
+        if(editedMessage instanceof GroupMessage){
+            long groupId=((GroupMessage) editedMessage).getGroupChat().getId();
+            GroupMessageEditedResponseDTO groupMessageEditedResponseDTO=new GroupMessageEditedResponseDTO(editedMessage.getMsg_id(), editedMessage.getContent());
+            simpMessagingTemplate.convertAndSend("/topic/group-message/edit/"+groupId,groupMessageEditedResponseDTO);
+
         }
-        boolean read=messageReadRepo.existsByMsgIdAndUserIdByCount(chatMessage.getMsg_id(), receiver.getId());
-        if(read){
-            chatMessageResponseDTO.setStatus("READ");
+        else{
+
+
+
+            Users receiver=((ChatMessage)editedMessage).getReceiver();
+            ChatMessageResponseDTO chatMessageResponseDTO=new ChatMessageResponseDTO(editedMessage.getMsg_id(), editedMessage.getContent(),editedMessage.getSender().getUsername(),receiver.getUsername(),editedMessage.getCreatedAt(),"SENT");
+            boolean delivered=messageDeliveryRepo.existsByMsgIdAndUserIdByCount(editedMessage.getMsg_id(), receiver.getId());
+            if(delivered){
+                chatMessageResponseDTO.setStatus("DELIVERED");
+            }
+            boolean read=messageReadRepo.existsByMsgIdAndUserIdByCount(editedMessage.getMsg_id(), receiver.getId());
+            if(read){
+                chatMessageResponseDTO.setStatus("READ");
+            }
+            if(editedMessage.isDeletedForEveryone()){
+                chatMessageResponseDTO.setDeletedForEveryone(true);
+            }
+            simpMessagingTemplate.convertAndSendToUser(editedMessage.getSender().getUsername(),"/queue/message/edit",chatMessageResponseDTO);
+            simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/message/edit",chatMessageResponseDTO);
+
         }
-        if(chatMessage.isDeletedForEveryone()){
-            chatMessageResponseDTO.setDeletedForEveryone(true);
-        }
-        simpMessagingTemplate.convertAndSendToUser(chatMessage.getSender().getUsername(),"/queue/message/edit",chatMessageResponseDTO);
-        simpMessagingTemplate.convertAndSendToUser(chatMessage.getReceiver().getUsername(),"/queue/message/edit",chatMessageResponseDTO);
+
     }
 }

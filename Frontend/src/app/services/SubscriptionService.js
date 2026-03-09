@@ -1,7 +1,7 @@
 import { setOnlineUsers, updateLastSeen } from "../../Slice/UserSlice";
 import {setAllGroups, setVisibleGroups}from "../../Slice/GroupSlice";
 import Store from '../Store'
-import { addMessage, updateMessageStatus,updateMessageDeletion, removeMessage, updateGroupMessageEmoji, updatePrivateMessageEmoji, updateMessage } from "../../Slice/MessageSlice.js";
+import { addMessage, updateMessageStatus,updateMessageDeletion, removeMessage, updateGroupMessageEmoji, updatePrivateMessageEmoji, updateMessage, updateMessageContent } from "../../Slice/MessageSlice.js";
 import { updateUnReadCountForGroup } from "../../Slice/CountSlice.js";
 import { getUnReadCountForPrivateChat } from "./CountService.js";
 import { addGroup } from "../../Slice/GroupSlice.js";
@@ -48,6 +48,15 @@ export const subscribeToNotifyDeleteForEveryone=(client,dispatch)=>{
         }
     })
     
+}
+
+export const subscribeToNotifyGroupMessageEdited=(groupId,client,dispatch)=>{
+    console.log("subscribed to groupmsg edited:",groupId);
+    client.subscribe(`/topic/group-message/edit/${groupId}`,(msg)=>{
+        const editedMessage=JSON.parse(msg.body);
+        
+        dispatch(updateMessageContent(editedMessage));
+    })
 }
 
 export const subscribeToNotifyPrivateMessageEmojiCreated=(client,dispatch)=>{
@@ -105,6 +114,7 @@ export const subscribeGroupMessage=(client,dispatch,subscribedGroupRef,token)=>{
                 subscribeToPrivateGroup(group.id,client,dispatch);
                 subscribeToNotifyIfGroupMessageDeletedForEveryone(group.id,client,dispatch);
                 subscribeToNotifyIfGroupMessageEmojiCreated(group.id,client,dispatch);
+                subscribeToNotifyGroupMessageEdited(group.id,client,dispatch);
             }
         })
     })
@@ -133,9 +143,8 @@ const subscribeToGroup=(groupId,client,dispatch,token)=>{
     client.subscribe(`/topic/group/${groupId}`,(msg)=>{
         const groupMessage=JSON.parse(msg.body);
         const selectedChat=Store.getState().chat.selectedChat;
-        console.log(selectedChat);
-        console.log("message pushed in group");
-        console.log(groupMessage);
+       
+       
         if(selectedChat?.type=="group"){
             const group=selectedChat.data;
             if(group.groupName==groupMessage.groupName){
@@ -164,9 +173,9 @@ const subscribeToGroup=(groupId,client,dispatch,token)=>{
 }
 const subscribeToNotifyIfGroupMessageDeletedForEveryone=(groupId,client,dispatch)=>{
     client.subscribe(`/topic/group/delete/${groupId}`,(groupMsg)=>{
-        console.log("deleted group message triggered");
+        
         const updatedMessage=JSON.parse(groupMsg.body);
-        console.log(updatedMessage);
+        
         dispatch(updateMessageDeletion(updatedMessage));
 
     })
@@ -190,8 +199,7 @@ const subscribeToPrivateGroup=(groupId,client,dispatch)=>{
 export const subscribePrivateMessage=(client,dispatch,token)=>{
     client.subscribe("/user/queue/private",(msg)=>{
         const message=JSON.parse(msg.body);
-        console.log("message");
-        console.log(message);
+        
         const senderusername = message.senderName;
         const receiverusername = message.receiverName;
         const selectedChat=Store.getState().chat.selectedChat;

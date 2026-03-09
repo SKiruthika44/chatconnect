@@ -3,7 +3,7 @@ package com.chatConnect.backend.Service;
 import com.chatConnect.backend.Event.EmojiCreatedEvent;
 import com.chatConnect.backend.Event.PrivateMessageDeletedEvent;
 import com.chatConnect.backend.Event.MessageDeletedForMeEvent;
-import com.chatConnect.backend.Event.PrivateMessageEditedEvent;
+import com.chatConnect.backend.Event.MessageEditedEvent;
 import com.chatConnect.backend.Modal.*;
 import com.chatConnect.backend.Repo.*;
 
@@ -299,7 +299,7 @@ public class ChatService {
         }
         chatMessage.setContent(content);
         chatRepo.save(chatMessage);
-        eventPublisher.publishEvent(new PrivateMessageEditedEvent(chatMessage));
+        eventPublisher.publishEvent(new MessageEditedEvent(chatMessage));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

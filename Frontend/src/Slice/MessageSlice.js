@@ -23,6 +23,7 @@ export const MessageSlice=createSlice({
         updateMessageContent:(state,action)=>{
             //update msg content to translatedcontent
             const updatedMessage=action.payload;
+            
             state.messages=state.messages.map((message,index)=>message.id==updatedMessage.id?{...message,content:updatedMessage.content}:message);
         },
         updateMessageDeletion:(state,action)=>{

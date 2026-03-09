@@ -1,10 +1,7 @@
 package com.chatConnect.backend.Service;
 
 
-import com.chatConnect.backend.Event.GroupMessageCreatedEvent;
-import com.chatConnect.backend.Event.GroupMessageDeletedEvent;
-import com.chatConnect.backend.Event.GroupMessageEmojiCreatedEvent;
-import com.chatConnect.backend.Event.MessageDeletedForMeEvent;
+import com.chatConnect.backend.Event.*;
 import com.chatConnect.backend.Modal.*;
 import com.chatConnect.backend.Repo.*;
 import com.chatConnect.backend.Config.PresenceEventListener;
@@ -352,6 +349,18 @@ public class GroupService {
     }
 
     public ResponseEntity<Void> editMessage(String username, long msgId, String content) {
+        Users user=userRepo.findByUsername(username);
+        Optional<GroupMessage> msg=groupMessageRepo.findById(msgId);
+        if(msg.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        GroupMessage groupMessage=msg.get();
+        if(!groupMessage.getSender().getUsername().equals(user.getUsername())){//only sender can edit the msg
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        groupMessage.setContent(content);
+       groupMessageRepo.save(groupMessage);
+        eventPublisher.publishEvent(new MessageEditedEvent(groupMessage));
         return ResponseEntity.status(HttpStatus.OK).build();
 
     }

@@ -154,12 +154,15 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
            
             <CornerUpRight size={16} onClick={handleForward}/>
           </div>
-          <div className="edit-button">
+          {
+            isSender &&  <div className="edit-button">
             <Edit size={16}onClick={()=>onEdit({
               msg:msg,
               type:isGroupMessage?"group":"private"
             })}/>
           </div>
+          }
+         
           <div className="emoji-reaction">
             <Smile size={16} onClick={()=>setShowEmojis(true)}/>
             
