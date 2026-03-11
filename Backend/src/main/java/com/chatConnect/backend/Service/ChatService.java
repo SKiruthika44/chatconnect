@@ -1,14 +1,14 @@
 package com.chatConnect.backend.Service;
 
-import com.chatConnect.backend.Event.EmojiCreatedEvent;
-import com.chatConnect.backend.Event.PrivateMessageDeletedEvent;
-import com.chatConnect.backend.Event.MessageDeletedForMeEvent;
-import com.chatConnect.backend.Event.MessageEditedEvent;
+import com.chatConnect.backend.Event.*;
 import com.chatConnect.backend.Modal.*;
 import com.chatConnect.backend.Repo.*;
 
 import com.chatConnect.backend.Config.PresenceEventListener;
 
+import com.chatConnect.backend.exception.ForbiddenActionException;
+import com.chatConnect.backend.exception.MessageNotFoundException;
+import com.chatConnect.backend.exception.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -62,9 +62,12 @@ public class ChatService {
     ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void sendMessage(String username, ChatMessageDTO msg) {
+    public ResponseEntity<Void> sendMessage(String username, ChatMessageDTO msg) {
 
         Users sender=userRepo.findByUsername(username);
+        if(msg.getContent()==null || msg.getReceiver()==null){
+            throw new IllegalArgumentException("content or receiver missing");
+        }
         Set<String> onlineUsers=presenceEventListener.getOnlineUsers();
 
             Users receiver=userRepo.findByUsername(msg.getReceiver());
@@ -80,7 +83,7 @@ public class ChatService {
         messageReadRepo.save(messageRead);
 
         ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getMsg_id(),chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"SENT");
-
+            String status="SENT";
             if(onlineUsers.contains(receiver.getUsername())){
 
                 MessageUserId messageUserId=new MessageUserId(chatMessage.getMsg_id(), receiver.getId());
@@ -88,19 +91,21 @@ public class ChatService {
                 messageDeliveryRepo.save(messageDelivery);
 
                 responseMsg.setStatus("DELIVERED");
-                simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/private",responseMsg);
+                status="DELIVERED";
+               // simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/private",responseMsg);
 
             }
+            eventPublisher.publishEvent(new PrivateMessageCreatedEvent(chatMessage,status));
 
-            simpMessagingTemplate.convertAndSendToUser(sender.getUsername(), "/queue/private", responseMsg);
+            //simpMessagingTemplate.convertAndSendToUser(sender.getUsername(), "/queue/private", responseMsg);
 
-
+            return ResponseEntity.status(HttpStatus.CREATED).build();
 
 
 
     }
 
-    public Map<String,Integer> getUnReadCounts(String username) {
+    public ResponseEntity<Map<String,Integer>> getUnReadCounts(String username) {
 
        Users user=userRepo.findByUsername(username);
 
@@ -114,13 +119,14 @@ public class ChatService {
             }
 
         }
+        System.out.println("unreadcount"+unReadCounts);
 
 
-       return unReadCounts;
+       return ResponseEntity.status(HttpStatus.OK).body(unReadCounts);
 
     }
 
-    public void markMessagesRead(String username, String sendername) {
+    public ResponseEntity<Void> markMessagesRead(String username, String sendername) {
 
         Users receiver=userRepo.findByUsername(username);
         Users sender=userRepo.findByUsername(sendername);
@@ -144,12 +150,13 @@ public class ChatService {
 
             simpMessagingTemplate.convertAndSendToUser(chatMessage.getSender().getUsername(),"/queue/private",responseMsg);
         }
+        return ResponseEntity.status(HttpStatus.OK).build();
 
 
 
     }
 
-    public void markMessageRead(String username, long msgId) {
+    public ResponseEntity<Void> markMessageRead(String username, long msgId) {
 
         Users user=userRepo.findByUsername(username);
 
@@ -163,12 +170,20 @@ public class ChatService {
                 messageReadRepo.save(messageRead);
                 ChatMessageResponseDTO responseMsg=new ChatMessageResponseDTO(chatMessage.getMsg_id(), chatMessage.getContent(), chatMessage.getSender().getUsername(),chatMessage.getReceiver().getUsername(),chatMessage.getCreatedAt(),"READ");
                 simpMessagingTemplate.convertAndSendToUser(chatMessage.getSender().getUsername(),"/queue/private",responseMsg);
+                return ResponseEntity.status(HttpStatus.OK).build();
             }
+            else{
+                throw new ForbiddenActionException("Sender cannot update read status");
+            }
+        }
+        else{
+            System.out.println("Message not found");
+            throw new MessageNotFoundException("Message not found for this id");
         }
 
     }
 
-    public List<ChatMessageResponseDTO> getAllMessagesBetweenSenderAndReceiver(UserPrincipal userPrincipal, String otherUsername) {
+    public ResponseEntity<List<ChatMessageResponseDTO>> getAllMessagesBetweenSenderAndReceiver(UserPrincipal userPrincipal, String otherUsername) {
         List<ChatMessageResponseDTO> responses=new ArrayList<>();
         String username=userPrincipal.getUsername();
         System.out.println(username);
@@ -203,7 +218,7 @@ public class ChatService {
 
             responses.add(responseMsg);
         }
-        return responses;
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
 
 
 
@@ -213,28 +228,34 @@ public class ChatService {
 
 
     public ResponseEntity<Void> deleteMessage(String username, long msgId,String scope) {
-        System.out.println("scope="+scope);
-        Optional<ChatMessage> chatMessage=chatRepo.findById(msgId);
         Users user=userRepo.findByUsername(username);
-        if(chatMessage.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if(user==null){
+            throw new UserNotFoundException("User not found");
         }
-        ChatMessage msg=chatMessage.get();
+        if(!scope.equals("everyone") && !scope.equals("me")){
+            throw new IllegalArgumentException("Invalid delete scope");
+        }
+        System.out.println("scope="+scope);
+       ChatMessage msg=chatRepo.findById(msgId).orElseThrow(()-> new MessageNotFoundException("Message not found"));
+
+
+
         if(!msg.getSender().getUsername().equals(username) && !msg.getReceiver().getUsername().equals(username) ){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new ForbiddenActionException("Only sender and receiver can delete");
         }
         if(scope.equals("everyone") && !msg.getSender().getUsername().equals(username)){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new ForbiddenActionException("Only sender can delete for everyone");
+
         }
         if(scope.equals("everyone")){
-            System.out.println("everyone");
+
             msg.setDeletedForEveryone(true);
             chatRepo.save(msg);
             eventPublisher.publishEvent(new PrivateMessageDeletedEvent(msg));
-            return ResponseEntity.status(HttpStatus.OK).build();
+
 
         }
-        else if(scope.equals("me")){
+        else {
             MessageUserId messageUserId=new MessageUserId(msg.getMsg_id(),user.getId());
             PrivateMessageDeletedUser deletedUser=new PrivateMessageDeletedUser(messageUserId);
 
@@ -242,28 +263,29 @@ public class ChatService {
             eventPublisher.publishEvent(new MessageDeletedForMeEvent(msg.getMsg_id(),user.getUsername()));
 
         }
-
         return ResponseEntity.status(HttpStatus.OK).build();
+
+
 
     }
 
     public ResponseEntity<Void> reactEmoji(String username, long msgId, String emoji) {
-        System.out.println("request came in chatservice");
-        Optional<ChatMessage> msg=chatRepo.findById(msgId);
-        if(msg.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        ChatMessage chatMessage=msg.get();
-        if(!chatMessage.getSender().getUsername().equals(username) && !chatMessage.getReceiver().getUsername().equals(username)){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
         Users user=userRepo.findByUsername(username);
-        if(emoji.equals("")){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        if(user==null){
+            throw new UserNotFoundException("User not found");
+        }
+        ChatMessage chatMessage=chatRepo.findById(msgId).orElseThrow(()->new MessageNotFoundException("Message Not found"));
+
+
+        if(!chatMessage.getSender().getUsername().equals(username) && !chatMessage.getReceiver().getUsername().equals(username)){
+            throw new ForbiddenActionException("Not allowed");
+        }
+
+        if(emoji==null || emoji.isBlank()){
+           throw new IllegalArgumentException("emoji is blank");
 
         }
-        System.out.println("request processing");
-        System.out.println("emoji="+emoji);
+
         Boolean exists=chatRepo.existsMessageUserId(chatMessage.getMsg_id(),user.getId());
         PrivateMessageEmojiReaction privateMessageEmojiReaction;
         if(!exists){
@@ -278,24 +300,25 @@ public class ChatService {
             privateMessageEmojiReactionRepo.save(privateMessageEmojiReaction);
         }
         List<String> emojis=chatRepo.findEmojisByMessageId(chatMessage.getMsg_id());
-        for(String e:emojis){
-            System.out.println("emoji:"+e);
-        }
+
         eventPublisher.publishEvent(new EmojiCreatedEvent(chatMessage.getMsg_id(),chatMessage.getSender()
                 .getUsername(),chatMessage.getReceiver().getUsername(),emojis));
-        System.out.println("emoji="+privateMessageEmojiReaction.getEmoji());
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     public ResponseEntity<Void> editMessage(String username, long msgId, String content) {
         Users user=userRepo.findByUsername(username);
-        Optional<ChatMessage> msg=chatRepo.findById(msgId);
-        if(msg.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if(user==null){
+            throw new UserNotFoundException("user not found");
         }
-        ChatMessage chatMessage=msg.get();
+        if(content==null || content.isBlank()){
+            throw new IllegalArgumentException("Content is blank");
+        }
+        ChatMessage chatMessage=chatRepo.findById(msgId).orElseThrow(()->new MessageNotFoundException("Message not found"));
+
         if(!chatMessage.getSender().getUsername().equals(user.getUsername())){//only sender can edit the msg
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+           throw new ForbiddenActionException("Only sender can edit the message");
         }
         chatMessage.setContent(content);
         chatRepo.save(chatMessage);

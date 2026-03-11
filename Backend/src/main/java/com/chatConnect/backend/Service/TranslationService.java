@@ -5,6 +5,7 @@ import com.chatConnect.backend.Modal.Users;
 import com.chatConnect.backend.Repo.UserRepo;
 import com.sun.security.auth.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class TranslationService {
         System.out.println("targetlanguage"+targetLang);
         String translatedText=translationApi.translate(text,sourceLang,targetLang);
         System.out.println("translated text"+translatedText);
-        return ResponseEntity.status(200).body(translatedText);
+        return ResponseEntity.status(HttpStatus.OK).body(translatedText);
 
     }
 }

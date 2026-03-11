@@ -7,6 +7,7 @@ import com.chatConnect.backend.Repo.UserRepo;
 import com.chatConnect.backend.Service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,24 +51,24 @@ public class ChatController {
 
 
     @GetMapping("/unreadCounts")
-    public Map<String,Integer> getUnReadCounts(@AuthenticationPrincipal UserPrincipal userPrincipal){
+    public ResponseEntity<Map<String,Integer>>  getUnReadCounts(@AuthenticationPrincipal UserPrincipal userPrincipal){
 
         String username=userPrincipal.getUsername();
         return chatService.getUnReadCounts(username);
     }
 
     @PutMapping("/makeRead/{receiver}")
-    public void markMessagesRead(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable String receiver){
+    public ResponseEntity<Void> markMessagesRead(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable String receiver){
 
         String username=userPrincipal.getUsername();
-        chatService.markMessagesRead(username,receiver);
+        return chatService.markMessagesRead(username,receiver);
     }
 
 
     @PutMapping("/updateMessageRead/{msgId}")
-    public void markMessageRead(@AuthenticationPrincipal UserPrincipal user,@PathVariable int msgId){
+    public ResponseEntity<Void> markMessageRead(@AuthenticationPrincipal UserPrincipal user,@PathVariable int msgId){
         String username=user.getUsername();
-        chatService.markMessageRead(username,msgId);
+        return chatService.markMessageRead(username,msgId);
     }
 
 
@@ -76,7 +77,7 @@ public class ChatController {
 
 
     @GetMapping("/messages/{otherUsername}")
-    public List<ChatMessageResponseDTO> getAllMessagesBetweenSenderAndReceiver(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable String otherUsername) {
+    public ResponseEntity<List<ChatMessageResponseDTO>> getAllMessagesBetweenSenderAndReceiver(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable String otherUsername) {
         return chatService.getAllMessagesBetweenSenderAndReceiver(userPrincipal, otherUsername);
     }
 

@@ -31,12 +31,12 @@ public class GroupController {
     }
 
     @GetMapping("/group/unread")
-    public Map<String,Integer> unreadMessagesPerGroup(@AuthenticationPrincipal UserPrincipal userPrincipal){
+    public ResponseEntity<Map<String, Integer>> unreadMessagesPerGroup(@AuthenticationPrincipal UserPrincipal userPrincipal){
         return groupService.getUnReadMessagesPerGroup(userPrincipal.getUsername());
     }
 
     @GetMapping("/group/messages/{groupname}")
-    public List<GroupMessageResponseDTO> getMessagesForGroup(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable String groupname){
+    public ResponseEntity<List<GroupMessageResponseDTO>> getMessagesForGroup(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable String groupname){
         return groupService.getMessagesForGroup(userPrincipal.getUsername(), groupname);
     }
 
