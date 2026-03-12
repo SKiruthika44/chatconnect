@@ -4,6 +4,7 @@ import axios from "axios";
 import './css/SearchBar.css';
 import { setAllUsers, setVisibleUsers } from './Slice/UserSlice';
 import { setAllGroups, setVisibleGroups } from './Slice/GroupSlice';
+import {toast} from "react-toastify";
 const SearchBar = ({token}) => {
   const [searchText,setSearchText]=useState("");
   const allUsers=useSelector((state)=>state.user.allUsers);
@@ -24,6 +25,7 @@ const SearchBar = ({token}) => {
         console.log(res.data);
     }
     catch(error){
+        toast.error(error.response.data.message);
         console.log(error);
     }
   }

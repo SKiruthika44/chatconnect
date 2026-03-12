@@ -4,6 +4,8 @@ import axios from 'axios'
 import './css/MessageInput.css'
 import { useState } from 'react'
 import { sendMessage } from './app/services/MessageService'
+import {toast} from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css'
 const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
     const selectedChat=useSelector((state)=>state.chat.selectedChat);
     const [privateInput,setPrivateInput]=useState("");
@@ -49,7 +51,8 @@ const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
           console.log(resp);
         }
         catch(error){
-          console.log(error);
+          toast.error(error.response.data.message);
+          console.log(error.response);
         }
       }
         editMessage();
@@ -132,6 +135,7 @@ const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
        <input type="text" value={privateInput} placeholder='Type a message' onChange={(e)=>setPrivateInput(e.target.value)} />
         <button onClick={sendMsg}>Send</button>
     </div>
+    
   )
 }
 

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useSelector } from 'react-redux';
 import './css/GroupCreationForm.css'
 import { useState } from 'react';
+import {toast} from "react-toastify";
 const GroupCreationForm = ({token,setGroupCreationForm}) => {
     const [groupNameInput,setGroupNameInput]=useState("");
     const [groupMembersInput,setGroupMembersInput]=useState([]);
@@ -28,6 +29,7 @@ const GroupCreationForm = ({token,setGroupCreationForm}) => {
         }
         catch(error){
             console.log(error);
+            toast.error(error.response.data.message);
           console.log("error creating the group");
         }
     

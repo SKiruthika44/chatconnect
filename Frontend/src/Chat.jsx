@@ -6,6 +6,7 @@ import SideBar from './SideBar';
 import GroupCreationForm from './GroupCreationForm';
 import EditForm from './EditForm';
 import ChatContainer from './ChatContainer';
+import { ToastContainer } from 'react-toastify';
 import './css/Chat.css'
 import { getAllMessagesForSelectedGroup } from './app/services/GroupService';
 import { getLoggedInUser,getAllUsers } from './app/services/UserService';
@@ -106,6 +107,7 @@ const Chat = () => {
         {
             showEditForm &&  <EditForm token={token} setShowEditForm={setShowEditForm}/>
         }
+        <ToastContainer/>
         
       
     </div>

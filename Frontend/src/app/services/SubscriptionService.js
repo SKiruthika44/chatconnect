@@ -6,6 +6,7 @@ import { updateUnReadCountForGroup } from "../../Slice/CountSlice.js";
 import { getUnReadCountForPrivateChat } from "./CountService.js";
 import { addGroup } from "../../Slice/GroupSlice.js";
 import { updateGroupMessageRead } from "../../api/GroupApi.js";
+import { toast } from "react-toastify";
 import axios from "axios";
 export const subscribeOnlineUsers=(client,dispatch)=>{
     client.subscribe("/topic/online",(users)=>{
@@ -95,10 +96,9 @@ export const subscribeLastSeen=(client,dispatch)=>{
 export const subscribeGroupMessage=(client,dispatch,subscribedGroupRef,token)=>{
    
     client.subscribe("/user/queue/groupInfo",(group)=>{
-         console.log("subscription called");
+         
         const groups=JSON.parse(group.body);
-        console.log("group from subscription");
-        console.log(groups);
+        
         if(Array.isArray(groups)){
             dispatch(setAllGroups(groups));
             dispatch(setVisibleGroups(groups));
@@ -120,7 +120,7 @@ export const subscribeGroupMessage=(client,dispatch,subscribedGroupRef,token)=>{
     })
 }
 const subscribeToNotifyIfGroupMessageEmojiCreated=(groupId,client,dispatch)=>{
-    console.log("rrrr");
+   
     client.subscribe(`/topic/group/emoji/${groupId}`,(msg)=>{
         const updatedMessage=JSON.parse(msg.body);
         console.log("message from event:",updatedMessage);
@@ -242,6 +242,7 @@ const updatePrivateMessageRead=async(msgId,token)=>{
             );
             console.log("read updated");
           } catch (error) {
+            toast.error(error.response.data.message);
             console.log("Error :", error);
           }
 }

@@ -8,6 +8,7 @@ import './css/MessageItem.css'
 import axios from 'axios';
 import { getAllMessagesBetween } from './app/services/MessageService';
 import { getAllMessagesForSelectedGroup } from './app/services/GroupService';
+import { toast } from 'react-toastify';
 import DeleteForm from './DeleteForm';
 import SendersList from './SendersList';
 const MessageItem = ({msg,token,stompClient,onEdit}) => {
@@ -44,6 +45,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
        
       }
        catch(error){
+        toast.error(error.response.data.message);
         console.log(error);
       }
       
@@ -72,6 +74,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
 
       }
       catch(error){
+        toast.error(error.response.data.message);
         console.log(error.response);
       }
     }
@@ -96,6 +99,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
         
       }
       catch(error){
+        toast.error(error.response.data.message);
         console.log("error",error);
       }
     }
