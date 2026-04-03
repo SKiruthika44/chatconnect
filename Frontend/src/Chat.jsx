@@ -28,12 +28,14 @@ const Chat = () => {
         const socket=new SockJS("http://localhost:8080/ws");
         const client=new Client({
             webSocketFactory:()=>socket,
-            reconectDelay:5000
+            reconnectDelay:5000
         })
         client.connectHeaders={
             Authorization:`Bearer ${token}`,
         };
         client.onConnect=(frame)=>{
+            console.log(frame);
+            console.log("connected");
             subscribedGroupRef.current.clear();
             console.log("subscribing everytime");
             subscribeOnlineUsers(client,dispatch);

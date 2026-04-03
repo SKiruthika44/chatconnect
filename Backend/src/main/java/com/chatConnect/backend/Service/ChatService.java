@@ -46,6 +46,9 @@ public class ChatService {
     private UserRepo userRepo;
 
     @Autowired
+    private MessageDeletionRepo messageDeletionRepo;
+
+    @Autowired
 
     private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -60,6 +63,9 @@ public class ChatService {
 
     @Autowired
     ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private MessageReactionRepo messageReactionRepo;
 
     @Transactional
     public ResponseEntity<Void> sendMessage(String username, ChatMessageDTO msg) {
@@ -251,15 +257,16 @@ public class ChatService {
 
             msg.setDeletedForEveryone(true);
             chatRepo.save(msg);
-            eventPublisher.publishEvent(new PrivateMessageDeletedEvent(msg));
+            eventPublisher.publishEvent(new MessageDeletedForEveryoneEvent(msg));
 
 
         }
         else {
             MessageUserId messageUserId=new MessageUserId(msg.getMsg_id(),user.getId());
-            PrivateMessageDeletedUser deletedUser=new PrivateMessageDeletedUser(messageUserId);
-
-            privateMessageDeletedUserRepo.save(deletedUser);
+            //PrivateMessageDeletedUser deletedUser=new PrivateMessageDeletedUser(messageUserId);
+            MessageDeletion messageDeletion=new MessageDeletion(messageUserId);
+            messageDeletionRepo.save(messageDeletion);
+            //privateMessageDeletedUserRepo.save(deletedUser);
             eventPublisher.publishEvent(new MessageDeletedForMeEvent(msg.getMsg_id(),user.getUsername()));
 
         }
@@ -287,17 +294,19 @@ public class ChatService {
         }
 
         Boolean exists=chatRepo.existsMessageUserId(chatMessage.getMsg_id(),user.getId());
-        PrivateMessageEmojiReaction privateMessageEmojiReaction;
+       // PrivateMessageEmojiReaction privateMessageEmojiReaction;
         if(!exists){
             MessageUserId messageUserId=new MessageUserId(chatMessage.getMsg_id(),user.getId());
-            privateMessageEmojiReaction=new PrivateMessageEmojiReaction(messageUserId,emoji);
-            privateMessageEmojiReactionRepo.save(privateMessageEmojiReaction);
+            MessageReaction messageReaction=new MessageReaction(messageUserId,emoji);
+            messageReactionRepo.save(messageReaction);
+            //privateMessageEmojiReaction=new PrivateMessageEmojiReaction(messageUserId,emoji);
+            //privateMessageEmojiReactionRepo.save(privateMessageEmojiReaction);
 
         }
         else{
-            privateMessageEmojiReaction=chatRepo.findByMsgIdAndUserId(msgId,user.getId());
-            privateMessageEmojiReaction.setEmoji(emoji);
-            privateMessageEmojiReactionRepo.save(privateMessageEmojiReaction);
+            MessageReaction messageReaction=chatRepo.findByMsgIdAndUserId(msgId,user.getId());
+            messageReaction.setEmoji(emoji);
+            messageReactionRepo.save(messageReaction);
         }
         List<String> emojis=chatRepo.findEmojisByMessageId(chatMessage.getMsg_id());
 

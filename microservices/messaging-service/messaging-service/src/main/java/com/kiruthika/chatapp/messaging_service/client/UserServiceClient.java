@@ -1,0 +1,18 @@
+package com.kiruthika.chatapp.messaging_service.client;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+
+public class UserServiceClient{
+    private final RestTemplate restTemplate=new RestTemplate();
+
+    public Long getUserIdByUsername(String username){
+        String url="http://localhost:8082/api/user/id/"+username;
+        return restTemplate.getForObject(url,Long.class);
+    }
+
+
+
+}

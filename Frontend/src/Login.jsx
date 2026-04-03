@@ -29,7 +29,7 @@ const Login = () => {
         password:password
     }
     try{
-        const res=await axios.post("http://localhost:8080/log-in",payload);
+        const res=await axios.post("http://localhost:8080/api/auth/login",payload);
         console.log("Logged in successfully");
         console.log(res);
         setSuccessMsg("logging in....");

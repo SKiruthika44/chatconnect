@@ -38,6 +38,12 @@ public class GroupService {
     ChatMessageRepo chatRepo;
 
     @Autowired
+    private MessageReactionRepo messageReactionRepo;
+
+    @Autowired
+    private MessageDeletionRepo messageDeletionRepo;
+
+    @Autowired
     private LanguageDetectionService languageDetectionService;
 
     @Autowired
@@ -370,8 +376,10 @@ public class GroupService {
         }
         if(scope.equals("me")){
             MessageUserId messageUserId=new MessageUserId(msgId,user.getId());
-            GroupMessageDeletedUser groupMessageDeletedUser=new GroupMessageDeletedUser(messageUserId);
-            groupMessageDeletedUserRepo.save(groupMessageDeletedUser);
+            //GroupMessageDeletedUser groupMessageDeletedUser=new GroupMessageDeletedUser(messageUserId);
+            //groupMessageDeletedUserRepo.save(groupMessageDeletedUser);
+            MessageDeletion messageDeletion=new MessageDeletion(messageUserId);
+            messageDeletionRepo.save(messageDeletion);
             eventPublisher.publishEvent(new MessageDeletedForMeEvent(groupMessage.getMsg_id(),user.getUsername()));
 
 
@@ -380,7 +388,7 @@ public class GroupService {
             groupMessage.setDeletedForEveryone(true);
             groupMessageRepo.save(groupMessage);
 
-            eventPublisher.publishEvent(new GroupMessageDeletedEvent(groupMessage));
+            eventPublisher.publishEvent(new MessageDeletedForEveryoneEvent(groupMessage));
 
 
         }
@@ -402,17 +410,19 @@ public class GroupService {
             throw new ForbiddenActionException("user is not in this group");
         }
         Boolean exists=groupMessageRepo.existsByMsgIdAndUserId(groupMessage.getMsg_id(),user.getId());
-        GroupMessageEmojiReaction groupMessageEmojiReaction;
+        MessageReaction messageReaction;
         if(exists){
-            groupMessageEmojiReaction=groupMessageRepo.findByMsgIdAndUserId(groupMessage.getMsg_id(),user.getId());
-            groupMessageEmojiReaction.setEmoji(emoji);
-            groupMessageEmojiReactionRepo.save(groupMessageEmojiReaction);
+            messageReaction=groupMessageRepo.findByMsgIdAndUserId(groupMessage.getMsg_id(),user.getId());
+            messageReaction.setEmoji(emoji);
+            messageReactionRepo.save(messageReaction);
 
         }
         else{
             MessageUserId messageUserId=new MessageUserId(groupMessage.getMsg_id(),user.getId());
-            groupMessageEmojiReaction=new GroupMessageEmojiReaction(messageUserId,emoji);
-            groupMessageEmojiReactionRepo.save(groupMessageEmojiReaction);
+            messageReaction=new MessageReaction(messageUserId,emoji);
+            messageReactionRepo.save(messageReaction);
+            //groupMessageEmojiReaction=new GroupMessageEmojiReaction(messageUserId,emoji);
+            //groupMessageEmojiReactionRepo.save(groupMessageEmojiReaction);
 
         }
         Map<String,Long> emojisMap=new HashMap<>();
