@@ -97,3 +97,6 @@ cd frontend
 npm install
 npm start
 ```
+
+⚠️ A microservices implementation of this project is available in the `microservices` branch.
+
