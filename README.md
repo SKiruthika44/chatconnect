@@ -97,3 +97,20 @@ cd frontend
 npm install
 npm start
 ```
+
+## Microservices Version (Work in Progress)
+
+A microservices-based version of this chat application is being developed in a separate branch.
+
+Branch name: microservices
+
+Services included:
+
+- API Gateway
+- User Service
+- Messaging Service
+- WebSocket Service
+
+
+This branch demonstrates the migration from a monolithic architecture to a microservices architecture using Spring Boot and REST APIs.
+
