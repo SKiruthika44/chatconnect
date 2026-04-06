@@ -1,0 +1,9 @@
+.sidebar-container {
+  width: 30%;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}

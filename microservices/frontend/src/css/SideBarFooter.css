@@ -1,0 +1,22 @@
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #222;
+  border-top: 1px solid #333;
+}
+
+.sidebar-footer .user-info h4 {
+  margin-left: 10px;
+}
+
+.edit-icons {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+}
+
+.edit-icons .icon {
+  cursor: pointer;
+  color: #ccc;
+}

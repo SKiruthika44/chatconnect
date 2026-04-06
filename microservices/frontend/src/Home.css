@@ -1,0 +1,97 @@
+/* ===== General Page ===== */
+.home-container {
+  background-color: #121212;     /* Dark background */
+  color: #ffffff;                /* White text */
+  min-height: 100vh;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* ===== Buttons ===== */
+.btns button {
+  margin-left: 10px;
+}
+
+.signup-btn,
+.login-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+/* Signup button (highlighted) */
+.signup-btn {
+  background-color: #1e88e5;
+  color: white;
+}
+
+.signup-btn:hover {
+  background-color: #1565c0;
+}
+
+/* Login button (outlined style) */
+.login-btn {
+  background-color: transparent;
+  border: 1px solid #fff;
+  color: white;
+}
+
+.login-btn:hover {
+  background-color: #ffffff22;
+}
+
+/* ===== Content Section ===== */
+.content {
+  text-align: center;
+  margin-top: 100px;
+}
+
+.content h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.content p {
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+.features {
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.feature-item {
+  background: #1d1d1d;
+  padding: 10px 18px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 400px;
+  text-align: center;
+  transition: 0.25s;
+}
+
+/* Hover effect */
+.feature-item:hover {
+  background: #2a2a2a;
+}

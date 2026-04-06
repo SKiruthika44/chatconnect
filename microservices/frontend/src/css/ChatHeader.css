@@ -1,0 +1,27 @@
+.chatheader {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+
+.chatheader img,
+.chatheader .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.name-status {
+  margin-left: 10px;
+}
+
+.name-status h4,
+.name-status h5 {
+  margin: 0;
+}
+
+.name-status h5 {
+  color: #66aaff;
+}
