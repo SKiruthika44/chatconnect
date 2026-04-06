@@ -13,7 +13,7 @@ import java.util.Map;
 @Service
 
 public class JwtService {
-    private final String secretKey="your-secret-key-here";
+    private final String secretKey="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
     public String generateToken(String username) {
         Map<String,Object> claims=new HashMap<>();
         return Jwts.builder()

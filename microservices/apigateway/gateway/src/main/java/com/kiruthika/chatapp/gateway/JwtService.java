@@ -1,4 +1,4 @@
-package com.kiruthika.chatapp.ws_service;
+package com.kiruthika.chatapp.gateway;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,13 +25,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractUsername(String token) {
-
-        return validate(token).getSubject();
-    }
-
     public boolean isTokenValid(String token) {
-
         try {
             validate(token);
             return true;
@@ -39,5 +33,9 @@ public class JwtService {
         catch (Exception e) {
             return false;
         }
+    }
+
+    public String extractUsername(String token) {
+        return validate(token).getSubject();
     }
 }
