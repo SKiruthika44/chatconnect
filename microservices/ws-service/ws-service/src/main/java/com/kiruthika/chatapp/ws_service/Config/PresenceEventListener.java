@@ -12,6 +12,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -69,5 +71,10 @@ public class PresenceEventListener {
 
     private void broadCastOnline() {
         simpMessagingTemplate.convertAndSend("/topic/online",onlineUsers);
+    }
+
+    public void broadcastOnlineUsersPrivate(String username) {
+        List<String> users=new ArrayList<>(onlineUsers); // to send as an array even if it is single user??sometimes if u send singleuser in array,it may transform into string(ain json),so in frontend,it expects array.make sure to send arry even if it is single element
+        simpMessagingTemplate.convertAndSendToUser(username,"/queue/online",users);
     }
 }

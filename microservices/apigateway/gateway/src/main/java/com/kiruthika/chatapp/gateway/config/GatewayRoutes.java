@@ -39,5 +39,20 @@ public class GatewayRoutes {
 
     }
 
+    @Bean
+    public RouteLocator customMessageRouteLocator(
+            RouteLocatorBuilder builder) {
+
+        return builder.routes()
+
+                .route("messaging-service", r -> r
+                        .path("/message/**")
+                        .uri("lb://messaging-service")
+                )
+
+                .build();
+
+    }
+
 
 }

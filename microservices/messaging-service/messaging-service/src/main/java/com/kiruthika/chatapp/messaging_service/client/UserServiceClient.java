@@ -14,5 +14,9 @@ public class UserServiceClient{
     }
 
 
+    public String getUsernameById(Long userId) {
+        String url="http://localhost:8082/api/user/username/"+userId;
+        return restTemplate.getForObject(url,String.class);
 
+    }
 }

@@ -153,4 +153,10 @@ public class UserService {
     public Long getId(String username) {
         return userRepo.findByUsername(username).getId();
     }
+
+    public String getUsername(Long id) {
+        User user=userRepo.findById(id).orElseThrow(()->new RuntimeException("user id not found"));
+        return user.getUsername();
+    }
+
 }

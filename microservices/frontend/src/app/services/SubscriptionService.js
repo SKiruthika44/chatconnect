@@ -210,9 +210,11 @@ export const subscribePrivateMessage=(client,dispatch,token)=>{
                 const currMessages=Store.getState().message.messages;
                 const exists=currMessages.find((m)=>m.id==message.id);
                 if(exists){
+                    console.log("exists"+message.content);
                     dispatch(updateMessageStatus(message));
                 }
                 else{
+                    console.log("not exists");
                     dispatch(addMessage(message));
                 }
             }
@@ -236,7 +238,7 @@ export const subscribePrivateMessage=(client,dispatch,token)=>{
 const updatePrivateMessageRead=async(msgId,token)=>{
     try {
             await axios.put(
-              `http://localhost:8080/updateMessageRead/${msgId}`,
+              `http://localhost:8080/message/direct/updateMessageRead/${msgId}`,
               {},
               { headers: { Authorization: `Bearer ${token}` } }
             );

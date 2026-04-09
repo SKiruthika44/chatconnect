@@ -2,7 +2,7 @@ import axios from "axios";
 import Store from "../app/Store";
 export const getUnReadCountForPrivateChatApi=(token)=>{
     try{
-        const response=axios.get(`http://localhost:8080/unreadCounts`,{
+        const response=axios.get(`http://localhost:8080/message/direct/unreadCounts`,{
             headers:{
                 Authorization:`Bearer ${token}`
             }
@@ -31,7 +31,7 @@ export const getUnReadCountForGroupChatApi=(token)=>{
 export const updateDbPrivateChatUnreadCountApi=async(token)=>{
     const selectedChat=Store.getState().chat.selectedChat.data;
     try{
-       const response=await axios.put(`http://localhost:8080/makeRead/${selectedChat.username}`,
+       const response=await axios.put(`http://localhost:8080/message/direct/makeRead/${selectedChat.username}`,
           {},{
         headers:{
           Authorization:`Bearer ${token}`

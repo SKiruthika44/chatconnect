@@ -11,8 +11,6 @@ import java.security.Principal;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping("/message")
-
 public class MessageController {
 
     private final MessageService messageService;
@@ -23,6 +21,15 @@ public class MessageController {
 
         String username=principal.getName();
         messageService.sendPrivateMessage(username,dto);
+
+
+    }
+
+    @MessageMapping("/ready")
+    public void handleReady(Principal principal){
+
+        String username=principal.getName();
+        messageService.handleReady(username);
 
 
     }

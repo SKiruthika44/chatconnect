@@ -3,6 +3,7 @@ package com.kiruthika.chatapp.ws_service.listener;
 
 import com.kiruthika.chatapp.ws_service.dto.DirectMessageResponseDto;
 import com.kiruthika.chatapp.ws_service.event.DirectMessageCreatedEvent;
+import com.kiruthika.chatapp.ws_service.event.DirectMessageStatusUpdatedEvent;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,13 +17,26 @@ public class MessageEventListener {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
 
-    @RabbitListener(queues = "ws.queue")
+    @RabbitListener(queues = "ws.message.created.queue")
     public void directMessageCreatedEvent(DirectMessageCreatedEvent event){
-        System.out.println("Message received: " + System.currentTimeMillis());
+
+        DirectMessageResponseDto dto=event.getDirectMessageResponseDto();
+
+        simpMessagingTemplate.convertAndSendToUser(dto.getSenderName(),"/queue/private",dto);
+
+        simpMessagingTemplate.convertAndSendToUser(dto.getReceiverName(),"/queue/private",dto);
+
+    }
+
+    @RabbitListener(queues = "ws.message.status.queue")
+    public void directMessageStatusUpdatedEvent(DirectMessageStatusUpdatedEvent event){
+
         DirectMessageResponseDto dto=event.getDirectMessageResponseDto();
         simpMessagingTemplate.convertAndSendToUser(dto.getSenderName(),"/queue/private",dto);
-        simpMessagingTemplate.convertAndSendToUser(dto.getReceiverName(),"/queue/private",dto);
-        System.out.println("Message published: " + System.currentTimeMillis());
-        System.out.println("published");
+
+
+
     }
+
+
 }

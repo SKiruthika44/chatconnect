@@ -13,7 +13,14 @@ public class MessageServiceClient {
     public void sendDirectMessage(String username, PrivateMessageRequestDto dto) {
         String url="http://localhost:8083/message/direct/"+username;
         restTemplate.postForObject(url,dto,Void.class);
-        System.out.println("/sent/direct");
+
+
+    }
+
+    public void deliverDirectMessage(String username) {
+        String url="http://localhost:8083/message/direct/deliver/"+username;
+        restTemplate.put(url, (Object) null);
+
 
     }
 }

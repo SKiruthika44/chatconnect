@@ -4,6 +4,7 @@ package com.kiruthika.chatapp.messaging_service;
 import com.kiruthika.chatapp.messaging_service.config.RabbitMqConfig;
 import com.kiruthika.chatapp.messaging_service.dto.DirectMessageResponseDto;
 import com.kiruthika.chatapp.messaging_service.event.DirectMessageCreatedEvent;
+import com.kiruthika.chatapp.messaging_service.event.DirectMessageStatusUpdatedEvent;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,14 @@ public class MessageEventPublisher   {
     public  void publishDirectMessageCreated(DirectMessageCreatedEvent directMessageCreatedEvent){
         //DirectMessageResponseDto dto=directMessageCreatedEvent.getDirectMessageResponseDto();
         rabbitTemplate.convertAndSend("chat.exchange","message.created",directMessageCreatedEvent);
-        System.out.println("Message sent: " + System.currentTimeMillis());
+
     }
 
 
 
+    @TransactionalEventListener(phase=TransactionPhase.AFTER_COMMIT)
+    public void publishDirectMessageStatusUpdated(DirectMessageStatusUpdatedEvent event) {
+        rabbitTemplate.convertAndSend("chat.exchange","message.status.updated",event);
 
+    }
 }

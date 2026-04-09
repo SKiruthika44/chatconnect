@@ -14,12 +14,16 @@ import java.time.LocalDateTime;
 public class MessageReadService {
     private final MessageReadRepo messageReadRepo;
 
-    public void addRead(Long senderId, long msgId) {
-        MessageUserId messageUserId=new MessageUserId(msgId,senderId);
+    public void addRead(Long receiverId, long msgId) {
+        MessageUserId messageUserId=new MessageUserId(msgId,receiverId);
         MessageRead messageRead=new MessageRead();
         messageRead.setId(messageUserId);
         messageRead.setReadAt(LocalDateTime.now());
         messageReadRepo.save(messageRead);
 
+    }
+
+    public Boolean isMessageReadByUser(long msgId, Long receiverId) {
+        return messageReadRepo.existsByMessageIdAndUserId(msgId,receiverId);
     }
 }

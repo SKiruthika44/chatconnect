@@ -21,4 +21,8 @@ public class MessageDeliveryService {
         messageDeliveryRepo.save(messageDelivery);
 
     }
+
+    public Boolean isMessageDeliveredToUser(long msgId, long userId) {
+        return messageDeliveryRepo.existsByMessageIdAndUserId(msgId,userId);
+    }
 }
