@@ -111,7 +111,7 @@ export const subscribeGroupMessage=(client,dispatch,subscribedGroupRef,token)=>{
             if(!subscribedGroupRef.current.has(group.id)){
                 subscribedGroupRef.current.add(group.id);
                 subscribeToGroup(group.id,client,dispatch,token);
-                subscribeToPrivateGroup(group.id,client,dispatch);
+                subscribeToPrivateGroup(group.groupName,client,dispatch);
                 subscribeToNotifyIfGroupMessageDeletedForEveryone(group.id,client,dispatch);
                 subscribeToNotifyIfGroupMessageEmojiCreated(group.id,client,dispatch);
                 subscribeToNotifyGroupMessageEdited(group.id,client,dispatch);
@@ -142,6 +142,7 @@ const subscribeToGroup=(groupId,client,dispatch,token)=>{
     console.log(groupId);
     client.subscribe(`/topic/group/${groupId}`,(msg)=>{
         const groupMessage=JSON.parse(msg.body);
+        console.log("groupMsg:",groupMessage);
         const selectedChat=Store.getState().chat.selectedChat;
        
        
@@ -181,8 +182,8 @@ const subscribeToNotifyIfGroupMessageDeletedForEveryone=(groupId,client,dispatch
     })
 }
 
-const subscribeToPrivateGroup=(groupId,client,dispatch)=>{
-    client.subscribe(`/user/queue/group/${groupId}`,(msg)=>{
+const subscribeToPrivateGroup=(groupName,client,dispatch)=>{
+    client.subscribe(`/user/queue/group/${groupName}`,(msg)=>{
         const message=JSON.parse(msg.body);
         const selectedChat=Store.getState().chat.selectedChat;
         

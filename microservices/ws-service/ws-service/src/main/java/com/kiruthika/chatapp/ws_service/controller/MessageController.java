@@ -1,5 +1,6 @@
 package com.kiruthika.chatapp.ws_service.controller;
 
+import com.kiruthika.chatapp.ws_service.dto.GroupMessageRequestDto;
 import com.kiruthika.chatapp.ws_service.dto.PrivateMessageRequestDto;
 import com.kiruthika.chatapp.ws_service.service.MessageService;
 import lombok.AllArgsConstructor;
@@ -16,21 +17,27 @@ public class MessageController {
     private final MessageService messageService;
 
     @MessageMapping("/private")
-
-    public void sendMessage(Principal principal, PrivateMessageRequestDto dto){
-
+    public void sendDirectMessage(Principal principal, PrivateMessageRequestDto dto){
         String username=principal.getName();
-        messageService.sendPrivateMessage(username,dto);
-
-
+        messageService.sendDirectMessage(username,dto);
     }
+
+    @MessageMapping("/group")
+    public void sendGroupMessage(Principal principal, GroupMessageRequestDto dto){
+        String username=principal.getName();
+        messageService.sendGroupMessage(username,dto);
+    }
+
+
+
+
+
+
+
 
     @MessageMapping("/ready")
     public void handleReady(Principal principal){
-
         String username=principal.getName();
         messageService.handleReady(username);
-
-
     }
 }

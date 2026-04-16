@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -24,5 +25,10 @@ public class MessageDeliveryService {
 
     public Boolean isMessageDeliveredToUser(long msgId, long userId) {
         return messageDeliveryRepo.existsByMessageIdAndUserId(msgId,userId);
+    }
+
+    public Boolean isMessageDeliveredToAll(long msgId, Long groupMembersCount) {
+        Long count=messageDeliveryRepo.countMessageDelivery(msgId);
+        return Objects.equals(count, groupMembersCount);
     }
 }

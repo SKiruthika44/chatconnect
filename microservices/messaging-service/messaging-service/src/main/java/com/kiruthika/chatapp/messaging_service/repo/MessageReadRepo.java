@@ -11,4 +11,8 @@ import org.springframework.stereotype.Repository;
 public interface MessageReadRepo extends JpaRepository<MessageRead, MessageUserId> {
     @Query(value="select count(m) >0 from MessageRead m where m.id.messageId=:msgId and m.id.userId=:userId")
     Boolean existsByMessageIdAndUserId(@Param("msgId")long msgId, @Param("userId")Long receiverId);
+
+
+   @Query(value="select count(r) from MessageRead r where r.id.messageId=:msgId")
+    Long countReadUsers(@Param("msgId") long msgId);
 }

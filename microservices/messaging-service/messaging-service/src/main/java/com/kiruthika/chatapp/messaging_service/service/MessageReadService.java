@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -25,5 +26,10 @@ public class MessageReadService {
 
     public Boolean isMessageReadByUser(long msgId, Long receiverId) {
         return messageReadRepo.existsByMessageIdAndUserId(msgId,receiverId);
+    }
+
+    public Boolean isMessageReadByAll(long msgId, Long groupMembersCount) {
+        Long count=messageReadRepo.countReadUsers(msgId);
+        return Objects.equals(count, groupMembersCount);
     }
 }

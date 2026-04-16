@@ -14,4 +14,8 @@ public interface MessageDeliveryRepo extends JpaRepository<MessageDelivery, Mess
 
     @Query(value = "select count(m)>0 from MessageDelivery m where m.id.messageId=:msgId and m.id.userId=:userId")
     Boolean existsByMessageIdAndUserId(@Param("msgId")long msgId, @Param("userId")long userId);
+
+
+    @Query(value="select count(d) from MessageDelivery d where d.id.messageId=:msgId")
+    Long countMessageDelivery(@Param("msgId") long msgId);
 }

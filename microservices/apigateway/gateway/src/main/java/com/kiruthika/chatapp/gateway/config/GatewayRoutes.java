@@ -46,7 +46,7 @@ public class GatewayRoutes {
         return builder.routes()
 
                 .route("messaging-service", r -> r
-                        .path("/message/**")
+                        .path("/message/**","/group/**")
                         .uri("lb://messaging-service")
                 )
 

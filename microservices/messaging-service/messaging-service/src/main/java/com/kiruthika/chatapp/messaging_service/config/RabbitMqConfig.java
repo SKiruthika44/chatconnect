@@ -38,6 +38,20 @@ public class RabbitMqConfig {
         return new Queue("ws.message.status.queue");
     }
 
+    @Bean
+    public Queue groupCreatedQueue(){
+        return new Queue("ws.group.created.queue");
+    }
+
+    @Bean
+    public Queue groupMessageCreatedQueue(){
+        return new Queue("ws.group.message.created.queue");
+    }
+
+    @Bean
+    public Queue groupMessageSatusUpdatedQueue(){
+        return new Queue("ws.group.message.status.queue");
+    }
 
 
     @Bean
@@ -50,49 +64,27 @@ public class RabbitMqConfig {
         return BindingBuilder.bind(messageCreatedQueue()).to(exchange).with("message.created");
     }
 
-   /* @Bean
-    public RabbitTemplate rabbitTemplate(
-            ConnectionFactory connectionFactory
-    ) {
-        return new RabbitTemplate(connectionFactory);
+
+
+    @Bean
+    public Binding groupMessageCreatedBinding(TopicExchange exchange){
+        return BindingBuilder.bind(groupMessageCreatedQueue()).to(exchange).with("group.message.created");
     }
-*/
+
+    @Bean
+    public Binding groupCreatedBinding(TopicExchange exchange){
+        return BindingBuilder.bind(groupCreatedQueue()).to(exchange).with("group.created");
+    }
+
    @Bean
    public Binding messageStatusBinding(TopicExchange exchange){
        return BindingBuilder.bind(messageUpdatedQueue()).to(exchange).with("message.status.*");
    }
-    /*@Bean
-    public MessageConverter messageConverter() {
-        return new JacksonJsonMessageConverter();
-    }
-
-    @Bean(name = "rabbitListenerContainerFactory")
-    public SimpleRabbitListenerContainerFactory
-    rabbitListenerContainerFactory(
-            ConnectionFactory connectionFactory,
-            MessageConverter messageConverter
-    ) {
-        SimpleRabbitListenerContainerFactory factory =
-                new SimpleRabbitListenerContainerFactory();
-
-        factory.setConnectionFactory(connectionFactory);
-        factory.setMessageConverter(messageConverter);
-
-        return factory;
-    }
 
     @Bean
-    public RabbitTemplate rabbitTemplate(
-            ConnectionFactory connectionFactory,
-            MessageConverter messageConverter
-    ) {
-        RabbitTemplate template =
-                new RabbitTemplate(connectionFactory);
-
-        template.setMessageConverter(messageConverter);
-
-        return template;
-    }*/
+    public Binding groupMessageStatusBinding(TopicExchange exchange){
+        return BindingBuilder.bind(groupMessageSatusUpdatedQueue()).to(exchange).with("group.message.status.*");
+    }
 
     @Bean
     public MessageConverter messageConverter() {
