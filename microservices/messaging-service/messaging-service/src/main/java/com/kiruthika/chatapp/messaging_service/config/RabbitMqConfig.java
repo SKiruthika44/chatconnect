@@ -18,6 +18,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.nio.file.Watchable;
+
 @Configuration
 
 public class RabbitMqConfig {
@@ -39,8 +41,22 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue messageEditedQueue(){
+        return new Queue("ws.message.edited.queue");
+    }
+
+    @Bean
+    public Queue messageDeletedQueue(){
+        return new Queue("ws.delete.for.me.queue");
+    }
+
+    @Bean
     public Queue groupCreatedQueue(){
         return new Queue("ws.group.created.queue");
+    }
+    @Bean
+    public Queue emojiCreatedQueue(){
+        return new Queue("ws.emoji.created.queue");
     }
 
     @Bean
@@ -49,11 +65,29 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Queue groupMessageEditedQueue(){
+        return new Queue("ws.group.message.edited.queue");
+    }
+
+    @Bean
     public Queue groupMessageSatusUpdatedQueue(){
         return new Queue("ws.group.message.status.queue");
     }
 
+    @Bean
+    public Queue groupMessageEmojiCreated(){
+        return new Queue("ws.group.message.emoji.created.queue");
+    }
 
+    @Bean
+    public Queue messageDeletedForEveryoneQueue(){
+        return new Queue("ws.delete.for.everyone.queue");
+    }
+
+    @Bean
+    public Queue groupMessageDeletedForEveryoneQueue(){
+        return new Queue("ws.group.message.delete.for.everyone.queue");
+    }
     @Bean
     public TopicExchange exchange(){
         return new TopicExchange(exchange);
@@ -64,11 +98,47 @@ public class RabbitMqConfig {
         return BindingBuilder.bind(messageCreatedQueue()).to(exchange).with("message.created");
     }
 
+    @Bean
+    public Binding messageDeletedForEveryone(TopicExchange exchange){
+        return BindingBuilder.bind(messageDeletedForEveryoneQueue()).to(exchange).with("message.delete.for.everyone");
+    }
+
+    @Bean
+    public Binding groupMessageEmojiCreatedBinding(TopicExchange exchange){
+        return BindingBuilder.bind(groupMessageEmojiCreated()).to(exchange).with("group.message.emoji.created");
+    }
+
+    @Bean
+    public Binding messageDeleteForMeBinding(TopicExchange exchange){
+        return BindingBuilder.bind(messageDeletedQueue()).to(exchange).with("message.delete.for.me");
+    }
+
+    @Bean
+    public Binding groupMessageEditedBinding(TopicExchange exchange){
+        return BindingBuilder.bind(groupMessageEditedQueue()).to(exchange).with("group.message.edited");
+    }
+
+    @Bean
+    public Binding emojiCreatedBinding(TopicExchange exchange){
+        return BindingBuilder.bind(emojiCreatedQueue()).to(exchange).with("message.emoji.created");
+    }
+
+
+    @Bean
+    public Binding messageEditedBinding(TopicExchange exchange){
+        return BindingBuilder.bind(messageEditedQueue()).to(exchange).with("message.edited");
+    }
+
 
 
     @Bean
     public Binding groupMessageCreatedBinding(TopicExchange exchange){
         return BindingBuilder.bind(groupMessageCreatedQueue()).to(exchange).with("group.message.created");
+    }
+
+    @Bean
+    public Binding groupMessageDeletedForEveryoneBinding(TopicExchange exchange){
+        return BindingBuilder.bind(groupMessageDeletedForEveryoneQueue()).to(exchange).with("group.message.delete.for.everyone");
     }
 
     @Bean

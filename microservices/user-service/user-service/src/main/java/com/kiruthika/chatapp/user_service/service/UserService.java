@@ -17,7 +17,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +85,8 @@ public class UserService {
     public ResponseEntity<UserResponseDTO> getLoggedInUser(String username) {
        User user= userRepo.findByUsername(username);
        UserResponseDTO userResponseDTO=new UserResponseDTO(user.getId(),user.getUsername(),user.getLastSeen(),user.getProfileImage(),user.getPreferredLanguage());
-       System.out.println(user.getUsername());
        return ResponseEntity.ok(userResponseDTO);
+
     }
 
     public List<UserResponseDTO> getAllUsers(String username) {
@@ -100,7 +103,7 @@ public class UserService {
                 System.out.println(userDTO.toString());
             }
 
-            System.out.println("allusers"+allUsersExceptLoggedInUser);
+
             return allUsersExceptLoggedInUser;
 
     }
@@ -146,7 +149,7 @@ public class UserService {
         }
         user.setLastSeen(dto.getLastseen());
         userRepo.save(user);
-        System.out.println("user="+user.toString());
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -159,4 +162,36 @@ public class UserService {
         return user.getUsername();
     }
 
+    public String getPreferredLanguage(Long id) {
+        User user=userRepo.findById(id).orElseThrow(()->new RuntimeException("user id not found"));
+        return user.getPreferredLanguage();
+
+    }
+
+
+    public ResponseEntity<?> uploadImage(String username, MultipartFile file)  {
+        try{
+            User user=userRepo.findByUsername(username);
+            String folder="D:/ChatConnect/microservices/user-service/uploads/";
+
+            File dir=new File(folder);
+            if(!dir.exists()){
+                dir.mkdirs();
+            }
+
+            String fileName=System.currentTimeMillis()+"_"+username+"_"+file.getOriginalFilename();
+            String filePath=folder+fileName;
+            file.transferTo(new File(filePath));
+            String dbPath="/uploads/"+fileName;
+
+            user.setProfileImage(dbPath);
+            userRepo.save(user);
+            return ResponseEntity.ok(dbPath);
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading the file");
+        }
+
+
+    }
 }

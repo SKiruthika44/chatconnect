@@ -16,7 +16,7 @@ export const getUnReadCountForPrivateChatApi=(token)=>{
 
 export const getUnReadCountForGroupChatApi=(token)=>{
     try{
-        const response=axios.get(`http://localhost:8080/group/unread`,{
+        const response=axios.get(`http://localhost:8080/message/group/unread`,{
             headers:{
                 Authorization:`Bearer ${token}`
             }
@@ -49,7 +49,7 @@ export const updateDbGroupChatUnreadCountApi=(token)=>{
     const selectedChat=Store.getState().chat.selectedChat;
     const group=selectedChat.data;
     try{
-          const response= axios.put(`http://localhost:8080/group/makeRead/${group.groupName}`,{},{
+          const response= axios.put(`http://localhost:8080/message/group/mark-all-read/${group.groupName}`,{},{
           headers:{authorization:`Bearer ${token}`}
         })
         return response;

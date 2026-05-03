@@ -5,20 +5,19 @@ import com.kiruthika.chatapp.messaging_service.client.UserServiceClient;
 import com.kiruthika.chatapp.messaging_service.client.WsServiceClient;
 import com.kiruthika.chatapp.messaging_service.dto.GroupMessageRequestDto;
 import com.kiruthika.chatapp.messaging_service.dto.GroupMessageResponseDto;
-import com.kiruthika.chatapp.messaging_service.event.GroupMessageCreatedEvent;
-import com.kiruthika.chatapp.messaging_service.event.GroupMessageStatusUpdatedEvent;
+import com.kiruthika.chatapp.messaging_service.event.*;
+import com.kiruthika.chatapp.messaging_service.modal.DirectMessage;
 import com.kiruthika.chatapp.messaging_service.modal.GroupChat;
 import com.kiruthika.chatapp.messaging_service.modal.GroupMessage;
 import com.kiruthika.chatapp.messaging_service.publisher.GroupMessageEventPublisher;
 import com.kiruthika.chatapp.messaging_service.repo.GroupMessageRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -32,7 +31,8 @@ public class GroupMessageService {
     private GroupMemberService groupMemberService;
     private final WsServiceClient wsServiceClient;
     private final GroupMessageEventPublisher groupMessageEventPublisher;
-
+    private final DeletionService deletionService;
+    private final MessageReactionService messageReactionService;
     public void sendGroupMessage(String sender, GroupMessageRequestDto dto) {
         Long senderId = userServiceClient.getUserIdByUsername(sender);
         Long groupId = groupService.getGroupIdByGroupName(dto.getGroupName());
@@ -79,14 +79,23 @@ public class GroupMessageService {
         dto.setGroupName(groupService.getGroupNameById(groupMessage.getGroupId()));
         dto.setContent(groupMessage.getContent());
         dto.setSenderName(userServiceClient.getUsernameById(groupMessage.getSenderId()));
+        if(groupMessage.isDeletedForEveryone()){
+            dto.setDeletedForEveryone(true);
+            dto.setContent(null);
+        }
+        Map<String,Long> emojis=messageReactionService.getGroupMessageEmojis(groupMessage.getMsgId());
+        dto.setEmojisCount(emojis);
         return dto;
 
     }
 
     public ResponseEntity<List<GroupMessageResponseDto>> getMessagesForGroup(String username, String groupname) {
         List<GroupMessageResponseDto> responseDtos = new ArrayList<>();
+        Long userId=userServiceClient.getUserIdByUsername(username);
         Long groupId = groupService.getGroupIdByGroupName(groupname);
-        List<GroupMessage> allMessages = groupMessageRepo.findByGroupId(groupId);
+
+        //List<GroupMessage> allMessages = groupMessageRepo.findByGroupId(groupId);
+        List<GroupMessage> allMessages = groupMessageRepo.findAllVisibleGroupMessages(groupId,userId);
         for (GroupMessage groupMessage : allMessages) {
             GroupMessageResponseDto dto = createDto(groupMessage);
             dto=updateStatus(dto, groupMessage);
@@ -132,6 +141,107 @@ public class GroupMessageService {
                 }
             }
         }
+    }
+
+    public void markGroupMessageRead(String username, Long msgId) {
+        Long userId=userServiceClient.getUserIdByUsername(username);
+        messageReadService.addRead(userId,msgId);
+        GroupMessage groupMessage=groupMessageRepo.findByMsgId(msgId);
+        Long groupmembersCount=groupService.getGroupMembersCount(groupMessage.getGroupId());
+        Boolean isRead=messageReadService.isMessageReadByAll(msgId,groupmembersCount);
+        if(isRead){
+            GroupMessageResponseDto dto = createDto(groupMessage);
+            dto.setStatus("READ");
+            groupMessageEventPublisher.groupMessageStatusUpdated(new GroupMessageStatusUpdatedEvent(dto));
+
+        }
+
+    }
+
+    public void markAllMessagesRead(String username, String groupName) {
+        Long userId=userServiceClient.getUserIdByUsername(username);
+        Long groupId= groupService.getGroupIdByGroupName(groupName);
+        List<GroupMessage> allMessages=groupMessageRepo.findByGroupId(groupId);
+        Long groupMembersCount=groupService.getGroupMembersCount(groupId);
+        for(GroupMessage groupMessage:allMessages){
+            Boolean isRead=messageReadService.isMessageReadByUser(groupMessage.getMsgId(),userId);
+            if(!isRead){
+                System.out.println("content:"+groupMessage.getContent());
+                messageReadService.addRead(userId,groupMessage.getMsgId());
+
+                Boolean isReadByAll=messageReadService.isMessageReadByAll(groupMessage.getMsgId(),groupMembersCount);
+                if(isReadByAll){
+                    GroupMessageResponseDto dto = createDto(groupMessage);
+                    dto.setStatus("READ");
+
+                    groupMessageEventPublisher.groupMessageStatusUpdated(new GroupMessageStatusUpdatedEvent(dto));
+
+                }
+            }
+        }
+
+    }
+
+    public ResponseEntity<Map<String, Integer>> getUnreadCountsForGroupChat(String username) {
+        Map<String,Integer> unreadCounts=new HashMap<>();
+        Long userId= userServiceClient.getUserIdByUsername(username);
+        List<GroupChat> joinedGroups=groupService.getJoinedGroups(userId);
+        for(GroupChat groupChat:joinedGroups){
+            List<GroupMessage> allMessages=groupMessageRepo.findByGroupId(groupChat.getId());
+            for(GroupMessage groupMessage:allMessages){
+                Boolean isRead=messageReadService.isMessageReadByUser(groupMessage.getMsgId(),userId);
+                if(!isRead){
+                    unreadCounts.put(groupChat.getGroupName(),unreadCounts.getOrDefault(groupChat.getGroupName(),0)+1);
+
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(unreadCounts);
+
+    }
+
+    public ResponseEntity<Void> editMessage(String username, long msgId, String content) {
+        Long userId=userServiceClient.getUserIdByUsername(username);
+        GroupMessage groupMessage=groupMessageRepo.findByMsgId(msgId);
+        if(Objects.equals(groupMessage.getSenderId(), userId)){
+            groupMessage.setContent(content);
+            groupMessageRepo.save(groupMessage);
+            GroupMessageResponseDto dto=createDto(groupMessage);
+            dto=updateStatus(dto,groupMessage);
+            groupMessageEventPublisher.groupMessageEdited(new GroupMessageEditedEvent(dto));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    public ResponseEntity<Void> deleteMessage(String username, long msgId, String scope) {
+        Long userId=userServiceClient.getUserIdByUsername(username);
+       GroupMessage groupMessage=groupMessageRepo.findByMsgId(msgId);
+        if(scope.equals("me")){
+            deletionService.deleteMessageForMe(msgId,userId);
+
+
+        }
+        else{
+            groupMessage.setDeletedForEveryone(true);
+            groupMessageRepo.save(groupMessage);
+           GroupMessageResponseDto dto=createDto(groupMessage);
+           dto=updateStatus(dto,groupMessage);
+
+           groupMessageEventPublisher.groupMessageDeletedForEveryone(new GroupMessageDeletedForEveryoneEvent(dto));
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    public ResponseEntity<Void> reactMessage(String username, long msgId, String emoji) {
+        Long userId=userServiceClient.getUserIdByUsername(username);
+        GroupMessage groupMessage=groupMessageRepo.findByMsgId(msgId);
+        messageReactionService.reactMessage(groupMessage.getMsgId(),userId,emoji);
+        GroupMessageResponseDto dto=createDto(groupMessage);
+        dto=updateStatus(dto,groupMessage);
+        groupMessageEventPublisher.groupMessageEmojiCreated(new GroupMessageEmojiCreatedEvent(dto));
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
 

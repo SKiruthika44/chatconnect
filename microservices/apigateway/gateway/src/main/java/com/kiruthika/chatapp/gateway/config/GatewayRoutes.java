@@ -31,7 +31,7 @@ public class GatewayRoutes {
         return builder.routes()
 
                 .route("user-service", r -> r
-                        .path("/api/**")
+                        .path("/api/**","/uploads/**")
                         .uri("lb://user-service")
                 )
 

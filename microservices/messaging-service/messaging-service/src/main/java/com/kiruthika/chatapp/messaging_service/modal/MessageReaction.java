@@ -2,6 +2,8 @@ package com.kiruthika.chatapp.messaging_service.modal;
 
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,9 +15,14 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageDeletion {
+
+public class MessageReaction {
+
+
     @Id
     private MessageUserId id;
-    private LocalDateTime deletedAt;
 
+    private String emoji;
+
+    private LocalDateTime reactedAt;
 }

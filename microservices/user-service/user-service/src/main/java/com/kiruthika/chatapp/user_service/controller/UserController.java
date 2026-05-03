@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 //import org.springframework.stereotype.RsetController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,14 @@ public class UserController {
         return userService.getUsername(id);
     }
 
+    @GetMapping("/preferred-lang/{id}")
+    public String getPreferredLanguage(@PathVariable Long id){
+        return userService.getPreferredLanguage(id);
+    }
 
+    @PostMapping("/upload-image")
+    public ResponseEntity<?> uploadImage(@RequestHeader("X-User")String username, @RequestParam("image") MultipartFile file){
+        return userService.uploadImage(username,file);
+    }
 
 }

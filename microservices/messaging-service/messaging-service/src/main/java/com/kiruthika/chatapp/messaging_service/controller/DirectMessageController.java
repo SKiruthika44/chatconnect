@@ -48,5 +48,7 @@ public class DirectMessageController {
     public void deliverDirectMessages(@PathVariable String username){
         directMessageService.deliverDirectMessages(username);
     }
+
+
     
 }

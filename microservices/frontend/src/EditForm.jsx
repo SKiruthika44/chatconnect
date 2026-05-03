@@ -14,7 +14,7 @@ const EditForm = ({token,setShowEditForm}) => {
     const updateLanguage=async()=>{
     
     try{
-        const resp=await axios.get(`http://localhost:8080/change-lang/${language}`,{
+        const resp=await axios.get(`http://localhost:8080/api/user/change-lang/${language}`,{
             headers:{
                 Authorization:`Bearer ${token}`
             }
@@ -47,14 +47,14 @@ const EditForm = ({token,setShowEditForm}) => {
         const formdata=new FormData();
       
         formdata.append("image",file);
-        const res=await axios.post(`http://localhost:8080/upload-image`,formdata,{
+        const res=await axios.post(`http://localhost:8080/api/user/upload-image`,formdata,{
             headers:{
               Authorization:`Bearer ${token}`,
               "Content-Type":"multipart/form-data",
           
           }
         })
-      //console.log(res.data);
+      console.log(res.data);
       dispatch(updateLoggedInUserProfile(res.data));
       /*setLoggedInUser((prevUser)=>{
       return {

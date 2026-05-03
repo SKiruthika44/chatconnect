@@ -19,4 +19,10 @@ public class UserServiceClient{
         return restTemplate.getForObject(url,String.class);
 
     }
+
+    public String getUserPreferredLanguage(Long userId){
+        String url="http://localhost:8082/api/user/preferred-lang/"+userId;
+        return restTemplate.getForObject(url,String.class);
+
+    }
 }

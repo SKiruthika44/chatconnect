@@ -19,4 +19,8 @@ public interface DirectMessageRepo extends JpaRepository<DirectMessage,Long> {
 
     @Query(value="select m from DirectMessage m where (m.senderId=:userId1 and m.receiverId=:userId2) or (m.receiverId=:userId1 and m.senderId=:userId2) order by m.createdAt asc")
     List<DirectMessage> findAllMessagesBetweenSenderAndReceiver(@Param("userId1")Long userId, @Param("userId2")Long otherUserId);
+
+
+    @Query(value="select m from DirectMessage m where ((m.senderId=:userId1 and m.receiverId=:userId2) or (m.receiverId=:userId1 and m.senderId=:userId2)) and not exists (select 1 from MessageDeletion d where d.id.messageId=m.msgId and d.id.userId=:userId1) order by m.createdAt asc")
+    List<DirectMessage> findAllVisibleMessagesBetweenSenderAndReceiver(@Param("userId1")Long userId, @Param("userId2")Long otherUserId);
 }

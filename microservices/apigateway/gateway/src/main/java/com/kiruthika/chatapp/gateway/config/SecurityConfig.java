@@ -24,7 +24,7 @@ public class SecurityConfig {
                         .permitAll()
 
                         // public endpoints
-                        .pathMatchers("/api/auth/**")
+                        .pathMatchers("/api/auth/**","/uploads/**")
                         .permitAll()
 
                         // websocket handled in ws-service

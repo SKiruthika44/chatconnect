@@ -39,10 +39,10 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for REST APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login","/api/user/**").permitAll() // Public endpoints
+                        .requestMatchers("/api/auth/register","/uploads/**", "/api/auth/login","/api/user/**").permitAll() // Public endpoints
                         .anyRequest().authenticated() // Protect everything else (like profile updates)
                 )
-                // User Service is stateless; it doesn't store sessions
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
@@ -61,6 +61,8 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
+
 
 
 

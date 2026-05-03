@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         // Skip auth and websocket
-        if (path.startsWith("/api/auth") || path.startsWith("/ws")) {
+        if (path.startsWith("/api/auth") || path.startsWith("/ws") || path.startsWith("/uploads/")) {
             System.out.println("Gateway: Passing /ws handshake through.");
             return chain.filter(exchange);
         }

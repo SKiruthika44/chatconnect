@@ -51,9 +51,9 @@ export const subscribeToNotifyDeleteForEveryone=(client,dispatch)=>{
     
 }
 
-export const subscribeToNotifyGroupMessageEdited=(groupId,client,dispatch)=>{
-    console.log("subscribed to groupmsg edited:",groupId);
-    client.subscribe(`/topic/group-message/edit/${groupId}`,(msg)=>{
+export const subscribeToNotifyGroupMessageEdited=(groupName,client,dispatch)=>{
+    //console.log("subscribed to groupmsg edited:",groupId);
+    client.subscribe(`/topic/group-message/edit/${groupName}`,(msg)=>{
         const editedMessage=JSON.parse(msg.body);
         
         dispatch(updateMessageContent(editedMessage));
@@ -63,12 +63,15 @@ export const subscribeToNotifyGroupMessageEdited=(groupId,client,dispatch)=>{
 export const subscribeToNotifyPrivateMessageEmojiCreated=(client,dispatch)=>{
     client.subscribe("/user/queue/private/emoji",(msg)=>{
         const privateMessage=JSON.parse(msg.body);
+        console.log("emoji",privateMessage);
+        console.log(privateMessage);
         const selectedChat=Store.getState().chat.selectedChat;
         if(selectedChat?.type=="direct"){
             const allMessages=Store.getState().message.messages;
-          const message=allMessages.find((message)=>message.id==privateMessage.msgId);
+          const message=allMessages.find((message)=>message.id==privateMessage.id);
             if(message){
-                dispatch(updatePrivateMessageEmoji(privateMessage));
+                /*dispatch(updatePrivateMessageEmoji(privateMessage));*/
+                dispatch(updateMessage(privateMessage));
             }
 
 
@@ -112,24 +115,24 @@ export const subscribeGroupMessage=(client,dispatch,subscribedGroupRef,token)=>{
                 subscribedGroupRef.current.add(group.id);
                 subscribeToGroup(group.id,client,dispatch,token);
                 subscribeToPrivateGroup(group.groupName,client,dispatch);
-                subscribeToNotifyIfGroupMessageDeletedForEveryone(group.id,client,dispatch);
-                subscribeToNotifyIfGroupMessageEmojiCreated(group.id,client,dispatch);
-                subscribeToNotifyGroupMessageEdited(group.id,client,dispatch);
+                subscribeToNotifyIfGroupMessageDeletedForEveryone(group.groupName,client,dispatch);
+                subscribeToNotifyIfGroupMessageEmojiCreated(group.groupName,client,dispatch);
+                subscribeToNotifyGroupMessageEdited(group.groupName,client,dispatch);
             }
         })
     })
 }
-const subscribeToNotifyIfGroupMessageEmojiCreated=(groupId,client,dispatch)=>{
+const subscribeToNotifyIfGroupMessageEmojiCreated=(groupName,client,dispatch)=>{
    
-    client.subscribe(`/topic/group/emoji/${groupId}`,(msg)=>{
+    client.subscribe(`/topic/group/emoji/${groupName}`,(msg)=>{
         const updatedMessage=JSON.parse(msg.body);
         console.log("message from event:",updatedMessage);
         const selectedChat=Store.getState().chat.selectedChat;
         if(selectedChat?.type=="group"){
             const allMessages=Store.getState().message.messages;
-            const exists=allMessages.find((message)=>message.id==updatedMessage.msgId);
+            const exists=allMessages.find((message)=>message.id==updatedMessage.id);
             if(exists){
-                dispatch(updateGroupMessageEmoji(updatedMessage));
+                dispatch(updateMessage(updatedMessage));
                 console.log("updated message:"+allMessages);
             }
 
@@ -172,11 +175,11 @@ const subscribeToGroup=(groupId,client,dispatch,token)=>{
     })
 
 }
-const subscribeToNotifyIfGroupMessageDeletedForEveryone=(groupId,client,dispatch)=>{
-    client.subscribe(`/topic/group/delete/${groupId}`,(groupMsg)=>{
+const subscribeToNotifyIfGroupMessageDeletedForEveryone=(groupName,client,dispatch)=>{
+    client.subscribe(`/topic/group/delete/${groupName}`,(groupMsg)=>{
         
         const updatedMessage=JSON.parse(groupMsg.body);
-        
+        /*console.log(updatecdMessage);*/
         dispatch(updateMessageDeletion(updatedMessage));
 
     })

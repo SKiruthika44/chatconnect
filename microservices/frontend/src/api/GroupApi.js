@@ -19,7 +19,7 @@ export const getAllMessagesForSelectedGroupApi=(token)=>{
 export const updateGroupMessageRead=async(token,id)=>{
     try{
 
-     const resp=await axios.put(`http://localhost:8080/group/updateGroupMessageRead/${id}`,{},{
+     const resp=await axios.put(`http://localhost:8080/message/group/mark-read/${id}`,{},{
                   headers:{
                     Authorization:`Bearer ${token}`
                   }

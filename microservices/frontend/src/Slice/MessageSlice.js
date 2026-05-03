@@ -45,6 +45,7 @@ export const MessageSlice=createSlice({
         },
         updateMessage:(state,action)=>{
             const updatedMessage=action.payload;
+            console.log("updatedmsg:",updatedMessage);
             state.messages=state.messages.map((message)=>message.id==updatedMessage.id?updatedMessage:message);
         }
 
