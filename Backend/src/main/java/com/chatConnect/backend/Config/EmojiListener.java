@@ -29,6 +29,6 @@ public class EmojiListener {
 
         Long groupId=groupMessageEmojiCreatedEvent.getGroupId();
         simpMessagingTemplate.convertAndSend("/topic/group/emoji/"+groupId,groupMessageEmojiCreatedResponseDTO);
-        System.out.println("event sent to:"+groupMessageEmojiCreatedEvent.getGroupId());
+
     }
 }

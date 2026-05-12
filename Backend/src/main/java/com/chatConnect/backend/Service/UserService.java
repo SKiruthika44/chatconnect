@@ -48,7 +48,7 @@ public class UserService {
         }
         user.setPassword(encoder.encode(user.getPassword()));
         repo.save(user);
-        System.out.println(user.getUsername());
+
         return ResponseEntity.ok("User registered successfully");
 
     }
@@ -79,7 +79,7 @@ public class UserService {
             System.out.println(userDTO.toString());
         }
 
-        System.out.println("allusers"+allUsersExceptLoggedInUser);
+
         return allUsersExceptLoggedInUser;
     }
 
@@ -112,10 +112,10 @@ public class UserService {
 
     }
 
-    public ResponseEntity<Users> getLoggedInUser(String username) {
+    public ResponseEntity<UserDTO> getLoggedInUser(String username) {
         Users user=repo.findByUsername(username);
         UserDTO userDTO=new UserDTO(user.getId(),user.getUsername(),user.getLastSeen(),user.getProfileImage(),user.getPreferredLanguage());
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userDTO);
     }
 
     public ResponseEntity<UserDTO> changeLanguage(String username,String lang) {
@@ -125,9 +125,9 @@ public class UserService {
         user.setPreferredLanguage(languageCode);
         repo.save(user);
         Users user2=repo.findByUsername(username);
-        System.out.println(user2.toString());
+
         UserDTO userDTO=new UserDTO(user.getId(),user.getUsername(),user.getLastSeen(),user.getProfileImage(),user.getPreferredLanguage());
-        System.out.println(userDTO.toString());
+
         return ResponseEntity.ok(userDTO);
     }
 
@@ -143,6 +143,21 @@ public class UserService {
 
             }
            return userDTOList;
+
+    }
+
+    public List<UserDTO> getAllRecentChattedUsers(String username) {
+        Users u=repo.findByUsername(username);
+        List<Users> users=repo.findRecentUsers(u.getId());
+        List<UserDTO> userDTOList=new ArrayList<>();
+        for(Users user:users){
+
+                UserDTO userDTO=new UserDTO(user.getId(),user.getUsername(),user.getLastSeen(),user.getProfileImage(),user.getPreferredLanguage());
+                userDTOList.add(userDTO);
+
+
+        }
+        return userDTOList;
 
     }
 }

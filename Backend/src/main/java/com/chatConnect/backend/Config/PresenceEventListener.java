@@ -60,7 +60,7 @@ public class PresenceEventListener {
     public void handleConnectedEvent(SessionConnectEvent event) throws InterruptedException {
         StompHeaderAccessor accessor=StompHeaderAccessor.wrap(event.getMessage());
         UserPrincipal user= (UserPrincipal) accessor.getUser();
-        System.out.println("Connected user : " + accessor.getUser());
+
 
         if(user!=null){
             onlineUsers.add(user.getUsername());
@@ -83,7 +83,7 @@ public class PresenceEventListener {
         Users receiver=userRepo.findByUsername(username);
         List<GroupChat> joinedGroups=groupService.getAllGroupsForUser(userRepo.findByUsername(username));
         for(GroupChat groupChat:joinedGroups){
-            System.out.println("groupchat"+groupChat);
+
 
 
 
@@ -101,7 +101,7 @@ public class PresenceEventListener {
 
 
         }
-        System.out.println(undeliveredGroupMessages);
+
         for(GroupMessage groupMessage:undeliveredGroupMessages){
 
             MessageUserId messageUserId=new MessageUserId(groupMessage.getMsg_id(),receiver.getId());
@@ -174,7 +174,7 @@ public class PresenceEventListener {
         Users user=userRepo.findByUsername(userPrincipal.getUsername());
 
         List<GroupChat> groups=groupService.getAllGroupsForUser(user);
-        System.out.println(groups);
+
         List<GroupResponseDTO> groupResponseDTOS=new ArrayList<>();
         for(GroupChat group:groups){
             List<String> groupMembers=new ArrayList<>();
@@ -184,7 +184,7 @@ public class PresenceEventListener {
 
 
             GroupResponseDTO groupResponseDTO=new GroupResponseDTO(group.getId(), group.getGroupName(), group.getAdmin().getUsername(),groupMembers,group.getCreatedAt());
-            System.out.println(groupResponseDTO);
+
             groupResponseDTOS.add(groupResponseDTO);
 
         }
@@ -205,7 +205,7 @@ public class PresenceEventListener {
 
 
     private void broadCastOnline() {
-        System.out.println(onlineUsers);
+
 
             simpMessagingTemplate.convertAndSend("/topic/online",onlineUsers);
     }
@@ -213,7 +213,7 @@ public class PresenceEventListener {
     public void broadcastPrivate(UserPrincipal user){
 
         List<String> users=new ArrayList<>(onlineUsers); // to send as an array even if it is single user??sometimes if u send singleuser in array,it may transform into string(ain json),so in frontend,it expects array.make sure to send arry even if it is single element
-        System.out.println("private:"+onlineUsers +" "+user.getUsername());
+
         simpMessagingTemplate.convertAndSendToUser(user.getUsername(),"/queue/online",users);
     }
 }

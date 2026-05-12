@@ -29,7 +29,7 @@ public class GroupMessageEventListener {
         }
 
         simpMessagingTemplate.convertAndSend("/topic/group/"+groupMessage.getGroupChat().getId(),responseDTO);
-        System.out.println("message sent after commit"+groupMessage.getMsg_id());
+
 
     }
 }

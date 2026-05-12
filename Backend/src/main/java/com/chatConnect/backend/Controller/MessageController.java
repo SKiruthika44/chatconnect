@@ -41,13 +41,13 @@ public class MessageController {
     @PutMapping("/message/emoji")
 
     public ResponseEntity<Void> reactEmoji(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam long msgId, String emoji){
-        System.out.println("request came");
+
         return messageService.reactEmoji(userPrincipal.getUsername(),msgId,emoji);
     }
 
     @PutMapping("/message/edit/{msgId}")
     public ResponseEntity<Void> editMessage(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long msgId, @RequestParam String content){
-        System.out.println("in edit controller");
+
         return messageService.editMessage(userPrincipal.getUsername(),msgId,content);
     }
 

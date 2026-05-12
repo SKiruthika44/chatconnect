@@ -119,7 +119,7 @@ public class ChatService {
             }
 
         }
-        System.out.println("unreadcount"+unReadCounts);
+
 
 
        return ResponseEntity.status(HttpStatus.OK).body(unReadCounts);
@@ -139,7 +139,7 @@ public class ChatService {
                 unReadMessages.add(chatMessage);
             }
         }
-        System.out.println("allMessages"+allMessages);
+
         for(ChatMessage chatMessage:unReadMessages){
 
             MessageUserId messageUserId=new MessageUserId(chatMessage.getMsg_id(), receiver.getId());
@@ -177,7 +177,7 @@ public class ChatService {
             }
         }
         else{
-            System.out.println("Message not found");
+
             throw new MessageNotFoundException("Message not found for this id");
         }
 
@@ -186,7 +186,7 @@ public class ChatService {
     public ResponseEntity<List<ChatMessageResponseDTO>> getAllMessagesBetweenSenderAndReceiver(UserPrincipal userPrincipal, String otherUsername) {
         List<ChatMessageResponseDTO> responses=new ArrayList<>();
         String username=userPrincipal.getUsername();
-        System.out.println(username);
+
         Users user=userRepo.findByUsername(username);
         Users otherUser=userRepo.findByUsername((otherUsername));
         Sort sortOption=Sort.by(Sort.Direction.ASC,"createdAt");
@@ -235,7 +235,7 @@ public class ChatService {
         if(!scope.equals("everyone") && !scope.equals("me")){
             throw new IllegalArgumentException("Invalid delete scope");
         }
-        System.out.println("scope="+scope);
+
        ChatMessage msg=chatRepo.findById(msgId).orElseThrow(()-> new MessageNotFoundException("Message not found"));
 
 

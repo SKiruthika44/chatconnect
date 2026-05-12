@@ -40,6 +40,13 @@ public class UserController {
 
     }
 
+    @GetMapping("/chat-users")
+    public List<UserDTO> getAllRecentChattedUsers(@AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        return service.getAllRecentChattedUsers(userPrincipal.getUsername());
+
+    }
+
     @GetMapping("/change-lang/{lang}")
     public ResponseEntity<UserDTO> changeLanguage(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable String lang){
         return service.changeLanguage(userPrincipal.getUsername(),lang);
@@ -52,7 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<Users> getLoggedInUser(@AuthenticationPrincipal UserPrincipal userPrincipal){
+    public ResponseEntity<UserDTO> getLoggedInUser(@AuthenticationPrincipal UserPrincipal userPrincipal){
         return service.getLoggedInUser(userPrincipal.getUsername());
     }
 }
