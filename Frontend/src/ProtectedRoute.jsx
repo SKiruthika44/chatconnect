@@ -6,7 +6,7 @@ const ProtectedRoute = ({children}) => {
     if(!token || !isTokenValid(token)){
         return <Navigate to='/login'/>
     }
-    console.log("token");
+    
     return children;
   
 }

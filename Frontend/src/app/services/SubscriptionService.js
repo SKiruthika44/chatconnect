@@ -19,7 +19,7 @@ export const subscribeOnlineUsers=(client,dispatch)=>{
 export const subscribeToEditPrivateChat=(client,dispatch)=>{
     client.subscribe("/user/queue/message/edit",(msg)=>{
         const updatedMessage=JSON.parse(msg.body);
-        console.log("uda",updateMessage);
+        
         dispatch(updateMessage(updatedMessage));
     })
 }
@@ -37,7 +37,7 @@ export const subscribeToNotifyDeleteForEveryone=(client,dispatch)=>{
     client.subscribe("/user/queue/delete",(message)=>{
        
         const privateMessage=JSON.parse(message.body);
-        console.log(privateMessage);
+        
         const selectedChat=Store.getState().chat.selectedChat;
         if(selectedChat?.type=="direct"){
             if(privateMessage.receiverName==selectedChat.data.username){
@@ -52,7 +52,7 @@ export const subscribeToNotifyDeleteForEveryone=(client,dispatch)=>{
 }
 
 export const subscribeToNotifyGroupMessageEdited=(groupId,client,dispatch)=>{
-    console.log("subscribed to groupmsg edited:",groupId);
+    
     client.subscribe(`/topic/group-message/edit/${groupId}`,(msg)=>{
         const editedMessage=JSON.parse(msg.body);
         
@@ -78,7 +78,7 @@ export const subscribeToNotifyPrivateMessageEmojiCreated=(client,dispatch)=>{
 
 export const subscribeToNotifyDeleteForMe=(client,dispatch)=>{
     client.subscribe("/user/queue/delete-for-me",(msgId)=>{
-        console.log("msgid");
+        
         const id=JSON.parse(msgId.body);
         dispatch(removeMessage(id));
     })
@@ -123,7 +123,7 @@ const subscribeToNotifyIfGroupMessageEmojiCreated=(groupId,client,dispatch)=>{
    
     client.subscribe(`/topic/group/emoji/${groupId}`,(msg)=>{
         const updatedMessage=JSON.parse(msg.body);
-        console.log("message from event:",updatedMessage);
+        
         const selectedChat=Store.getState().chat.selectedChat;
         if(selectedChat?.type=="group"){
             const allMessages=Store.getState().message.messages;
@@ -138,8 +138,7 @@ const subscribeToNotifyIfGroupMessageEmojiCreated=(groupId,client,dispatch)=>{
 }
 
 const subscribeToGroup=(groupId,client,dispatch,token)=>{
-    console.log("subscribing groupid");
-    console.log(groupId);
+    
     client.subscribe(`/topic/group/${groupId}`,(msg)=>{
         const groupMessage=JSON.parse(msg.body);
         const selectedChat=Store.getState().chat.selectedChat;
@@ -240,9 +239,9 @@ const updatePrivateMessageRead=async(msgId,token)=>{
               {},
               { headers: { Authorization: `Bearer ${token}` } }
             );
-            console.log("read updated");
+            
           } catch (error) {
             toast.error(error.response.data.message);
-            console.log("Error :", error);
+            console.log("Error updating message read :",error);
           }
 }

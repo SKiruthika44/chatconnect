@@ -11,16 +11,14 @@ export const CountSlice=createSlice({
     reducers:{
         setUnReadCountForUsers:(state,action)=>{
             state.unReadCountForUsers=action.payload;
-            console.log("unread counts for users")
-            console.log(state.unReadCountForUsers);
+            
         },
         setUnReadCountForGroups:(state,action)=>{
             state.unReadCountForGroups=action.payload;
 
         },
         updateUnReadCountForGroup:(state,action)=>{
-            console.log("action payload");
-            console.log(action.payload);
+           
             state.unReadCountForGroups={...state.unReadCountForGroups,[action.payload.groupName]:(state.unReadCountForGroups?.[action.payload.groupName]|| 0)+1}
         },
         

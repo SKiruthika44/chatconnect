@@ -9,7 +9,7 @@ const SidebarFooter = ({setShowEditForm}) => {
     const navigate=useNavigate();
     const handleLogout=()=>{
         localStorage.removeItem("token");
-        console.log("logging out");
+        
         navigate("/login");
     }
   return (

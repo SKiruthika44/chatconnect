@@ -35,7 +35,7 @@ const Chat = () => {
         };
         client.onConnect=(frame)=>{
             subscribedGroupRef.current.clear();
-            console.log("subscribing everytime");
+            
             subscribeOnlineUsers(client,dispatch);
             subscribePrivateOnlineUsers(client,dispatch);
             subscribeLastSeen(client,dispatch);
@@ -92,8 +92,7 @@ const Chat = () => {
     },[selectedChat]);
 
     useEffect(()=>{
-        console.log("subscribed group id");
-        console.log(subscribedGroupRef);
+        
     },[subscribedGroupRef])
     
   return (

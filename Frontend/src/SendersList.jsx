@@ -11,7 +11,7 @@ const SendersList = ({stompClient,content,closeForward}) => {
     const dispatch=useDispatch();
     const handleForwarding=()=>{
      
-      console.log(selected.type);
+      
       
       if(selected && content){
         console.log("forwarding..");
@@ -62,8 +62,8 @@ const SendersList = ({stompClient,content,closeForward}) => {
      
     
      
-     <button className='forward-btn' onClick={handleForwarding}>Forward Message</button>
-     <h3>{selected?.data}</h3>
+     <button className="forward-btn" onClick={handleForwarding}>Forward Message</button>
+     <button className="close-btn" onClick={()=>closeForward()}>Close</button>
     </div>
     </div>
   )

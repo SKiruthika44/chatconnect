@@ -34,7 +34,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
             }
           
         });
-        console.log(response);
+        
 
         dispatch(updateMessageContent({
             id:msgId,
@@ -93,7 +93,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
             }
           
         }) 
-        console.log(response);
+        
         setShowDeleteForm(false);
        
         
@@ -105,7 +105,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
     }
 
     const handleForward=()=>{
-      console.log(msg.content);
+     
       
       setShowSenderList(true);
     }

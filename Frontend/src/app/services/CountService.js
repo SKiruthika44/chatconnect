@@ -6,7 +6,7 @@ import { updateDbPrivateChatUnreadCountApi,updateDbGroupChatUnreadCountApi } fro
 export const getUnReadCountForPrivateChat=async(token,dispatch)=>{
     try{
             const response=await getUnReadCountForPrivateChatApi(token);
-            console.log("unread",response);
+            
            
             dispatch(setUnReadCountForUsers(response.data));
     }

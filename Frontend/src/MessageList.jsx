@@ -6,7 +6,7 @@ import './css/MessageList.css'
 const MessageList = ({token,stompClient,onEdit}) => {
     const messages=useSelector((state)=>state.message.messages);
     useEffect(()=>{
-      console.log(messages);
+     
     },[messages]);
   return (
     <div className='message-list'>

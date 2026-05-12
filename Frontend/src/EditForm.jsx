@@ -12,8 +12,7 @@ const EditForm = ({token,setShowEditForm}) => {
     const [imageUploadSuccess,setImageUploadSuccess]=useState(false);
 
     const updateLanguage=async()=>{
-    console.log("called function");
-    console.log(language);
+    
     try{
         const resp=await axios.get(`http://localhost:8080/change-lang/${language}`,{
             headers:{
@@ -22,13 +21,12 @@ const EditForm = ({token,setShowEditForm}) => {
         })
         dispatch(setLoggedInUser(resp.data));
         
-        console.log(loggedInUser);
-        console.log(resp.data);
+        
         
 
     }
     catch(error){
-        console.log(error);
+        console.log("Error:",error);
     }
 
   }

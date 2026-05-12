@@ -11,8 +11,7 @@ export const GroupSlice=createSlice({
     reducers:{
         setAllGroups:(state,action)=>{
             state.allGroups=action.payload;
-            console.log("all groups");
-            console.log(state.allGroups);
+           
         },
         addGroup:(state,action)=>{
             state.allGroups=[...state.allGroups,action.payload];

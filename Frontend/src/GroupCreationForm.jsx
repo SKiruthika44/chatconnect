@@ -20,7 +20,7 @@ const GroupCreationForm = ({token,setGroupCreationForm}) => {
           const response=await axios.post(`http://localhost:8080/group/create-group`,groupMembers,{
             headers:{Authorization:`Bearer ${token}`}
           })
-          console.log(response);
+          
           setSuccessMsg(` ${response.data.groupName} Group has been successfully created....`);
           setTimeout(()=>{
             setGroupCreationForm(false);
@@ -28,7 +28,7 @@ const GroupCreationForm = ({token,setGroupCreationForm}) => {
           
         }
         catch(error){
-            console.log(error);
+            
             toast.error(error.response.data.message);
           console.log("error creating the group");
         }

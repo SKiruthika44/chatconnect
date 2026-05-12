@@ -15,7 +15,7 @@ export const getLoggedInUserApi=(token)=>{
 
 export const getAllUsersApi=(token)=>{
     try{
-        const response=axios.get(`http://localhost:8080/all-users`,{
+        const response=axios.get(`http://localhost:8080/chat-users`,{
             headers:{
                 Authorization:`Bearer ${token}`
             }

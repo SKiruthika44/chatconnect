@@ -50,7 +50,7 @@ const SignUp = () => {
     }
     try{
       const res=await axios.post("http://localhost:8080/register",payload);
-      console.log("account created");
+      
       setMsg("Account created successfully");
       setTimeout(()=>{
         navigate("/login");

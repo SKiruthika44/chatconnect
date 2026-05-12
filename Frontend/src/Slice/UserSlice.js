@@ -11,14 +11,12 @@ export const UserSlice=createSlice({
     reducers:{
         setAllUsers:(state,action)=>{
             state.allUsers=action.payload;
-            console.log("all users");
-            console.log(state.allUsers);
+            
 
         },
         setOnlineUsers:(state,action)=>{
             state.onlineUsers=action.payload;
-            console.log("onlineusers");
-            console.log(state.allUsers);
+            
 
         },
         updateLastSeen:(state,action)=>{
@@ -28,8 +26,7 @@ export const UserSlice=createSlice({
         },
         setLoggedInUser:(state,action)=>{
             state.loggedInUser=action.payload;
-            console.log("loggedinuser");
-            console.log(state.loggedInUser);
+            
 
         }, 
         updateLoggedInUserProfile:(state,action)=>{
@@ -37,8 +34,7 @@ export const UserSlice=createSlice({
         },
         setVisibleUsers:(state,action)=>{
             state.visibleUsers=action.payload;
-            console.log("visible users");
-            console.log(state.visibleUsers);
+           
 
         }
 

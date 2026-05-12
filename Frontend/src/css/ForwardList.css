@@ -80,3 +80,25 @@
 .forward-btn:hover {
   background: #555;
 }
+
+.close-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+
+  background: transparent;
+  border: 1px solid #555;
+  border-radius: 6px;
+
+  color: #d1d1d1;
+  font-weight: 500;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: #2b2b2b;
+  border-color: #777;
+  color: #ffffff;
+}

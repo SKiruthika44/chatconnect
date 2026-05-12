@@ -25,7 +25,7 @@ const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
      else{
       receiverName=selectedChat.data.username;
      }
-     console.log("editing msg:",editingMessage);
+     
      if(editingMessage){
 
       const editMessage=async()=>{
@@ -47,8 +47,7 @@ const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
           }
           );
           
-          console.log("edited");
-          console.log(resp);
+         
         }
         catch(error){
           toast.error(error.response.data.message);

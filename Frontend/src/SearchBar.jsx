@@ -22,7 +22,7 @@ const SearchBar = ({token}) => {
         });
         dispatch(setVisibleUsers(res.data.userDTOList));
         dispatch(setVisibleGroups(res.data.groupResponseDTOList));
-        console.log(res.data);
+        
     }
     catch(error){
         toast.error(error.response.data.message);
@@ -32,7 +32,7 @@ const SearchBar = ({token}) => {
   useEffect(()=>{
     
     const timer=setTimeout(()=>{
-        console.log(searchText);
+        
         if(searchText==""){
             dispatch(setVisibleUsers(allUsers));
             dispatch(setVisibleGroups(allGroups));
