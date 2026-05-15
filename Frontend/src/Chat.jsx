@@ -28,7 +28,7 @@ const Chat = () => {
         const socket=new SockJS("https://chatconnect-8iix.onrender.com/ws");
         const client=new Client({
             webSocketFactory:()=>socket,
-            reconectDelay:5000
+            reconnectDelay:5000
         })
         client.connectHeaders={
             Authorization:`Bearer ${token}`,
