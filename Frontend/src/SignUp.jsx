@@ -49,7 +49,7 @@ const SignUp = () => {
       password:password
     }
     try{
-      const res=await axios.post("http://localhost:8080/register",payload);
+      const res=await axios.post("https://chatconnect-8iix.onrender.com/register",payload);
       
       setMsg("Account created successfully");
       setTimeout(()=>{

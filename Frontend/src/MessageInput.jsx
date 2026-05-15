@@ -32,7 +32,7 @@ const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
         const msgId=editingMessage.msg.id;
         const type=editingMessage.type;
         try{
-          const resp=await axios.put(`http://localhost:8080/message/edit/${msgId}`,{},{
+          const resp=await axios.put(`https://chatconnect-8iix.onrender.com/message/edit/${msgId}`,{},{
             params:{
                content:privateInput
             

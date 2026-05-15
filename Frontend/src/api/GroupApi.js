@@ -3,7 +3,7 @@ import axios from "axios";
 export const getAllMessagesForSelectedGroupApi=(token)=>{
     const group=Store.getState().chat.selectedChat.data;
     try{
-        const response=axios.get(`http://localhost:8080/group/messages/${group.groupName}`,{
+        const response=axios.get(`https://chatconnect-8iix.onrender.com/group/messages/${group.groupName}`,{
             headers:{
               Authorization:`Bearer ${token}`
             }
@@ -19,7 +19,7 @@ export const getAllMessagesForSelectedGroupApi=(token)=>{
 export const updateGroupMessageRead=async(token,id)=>{
     try{
 
-     const resp=await axios.put(`http://localhost:8080/group/updateGroupMessageRead/${id}`,{},{
+     const resp=await axios.put(`https://chatconnect-8iix.onrender.com/group/updateGroupMessageRead/${id}`,{},{
                   headers:{
                     Authorization:`Bearer ${token}`
                   }

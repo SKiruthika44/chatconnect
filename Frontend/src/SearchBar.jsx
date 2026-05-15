@@ -12,7 +12,7 @@ const SearchBar = ({token}) => {
     const dispatch=useDispatch();
   const searchUserOrGroup=async()=>{
     try{
-        const res=await axios.get(`http://localhost:8080/search`,{
+        const res=await axios.get(`https://chatconnect-8iix.onrender.com/search`,{
             params:{
                 keyword:searchText.trim() || undefined
             },

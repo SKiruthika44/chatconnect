@@ -15,7 +15,7 @@ const Avatar = ({user}) => {
   const getColor = (name) => {
     if (!name) return "#999";
     const charCode=name.length;
-   // const charCode = name.charCodeAt(0); // get ASCII value
+   
     return colors[charCode % colors.length];
   };
   return (

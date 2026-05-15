@@ -235,7 +235,7 @@ export const subscribePrivateMessage=(client,dispatch,token)=>{
 const updatePrivateMessageRead=async(msgId,token)=>{
     try {
             await axios.put(
-              `http://localhost:8080/updateMessageRead/${msgId}`,
+              `https://chatconnect-8iix.onrender.com/updateMessageRead/${msgId}`,
               {},
               { headers: { Authorization: `Bearer ${token}` } }
             );

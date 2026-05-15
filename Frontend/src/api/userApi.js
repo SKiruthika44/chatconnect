@@ -1,7 +1,7 @@
 import axios from "axios";
 export const getLoggedInUserApi=(token)=>{
     try{
-        const response=axios.get(`http://localhost:8080/user`,{
+        const response=axios.get(`https://chatconnect-8iix.onrender.com/user`,{
             headers:{
                 Authorization:`Bearer ${token}`
             }
@@ -15,7 +15,7 @@ export const getLoggedInUserApi=(token)=>{
 
 export const getAllUsersApi=(token)=>{
     try{
-        const response=axios.get(`http://localhost:8080/chat-users`,{
+        const response=axios.get(`https://chatconnect-8iix.onrender.com/chat-users`,{
             headers:{
                 Authorization:`Bearer ${token}`
             }

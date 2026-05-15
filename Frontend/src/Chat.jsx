@@ -25,7 +25,7 @@ const Chat = () => {
     const [showEditForm,setShowEditForm]=useState(false);
     
     useEffect(()=>{
-        const socket=new SockJS("http://localhost:8080/ws");
+        const socket=new SockJS("https://chatconnect-8iix.onrender.com/ws");
         const client=new Client({
             webSocketFactory:()=>socket,
             reconectDelay:5000

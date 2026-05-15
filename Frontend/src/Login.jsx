@@ -29,7 +29,7 @@ const Login = () => {
         password:password
     }
     try{
-        const res=await axios.post("http://localhost:8080/log-in",payload);
+        const res=await axios.post("https://chatconnect-8iix.onrender.com/log-in",payload);
         
         setSuccessMsg("logging in....");
         localStorage.setItem("token",res.data);

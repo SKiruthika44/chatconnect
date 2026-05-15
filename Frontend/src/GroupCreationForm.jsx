@@ -17,7 +17,7 @@ const GroupCreationForm = ({token,setGroupCreationForm}) => {
         }
         try{
     
-          const response=await axios.post(`http://localhost:8080/group/create-group`,groupMembers,{
+          const response=await axios.post(`https://chatconnect-8iix.onrender.com/group/create-group`,groupMembers,{
             headers:{Authorization:`Bearer ${token}`}
           })
           

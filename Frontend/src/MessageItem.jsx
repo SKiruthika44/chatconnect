@@ -24,7 +24,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
     const dispatch=useDispatch();
    const handleTranslation=async(msgId)=>{
       try{
-        const response=await axios.get("http://localhost:8080/translate",{
+        const response=await axios.get("https://chatconnect-8iix.onrender.com/translate",{
           params:{
             msgId:msgId
             
@@ -53,7 +53,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
 
     const handleEmojiApi=async(emoji)=>{
       try{
-        const response=await axios.put(`http://localhost:8080/message/emoji`,{},{
+        const response=await axios.put(`https://chatconnect-8iix.onrender.com/message/emoji`,{},{
           params:{
             msgId:msg.id,
           
@@ -82,7 +82,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
     const handleDelete=async(scope)=>{
       try{
         //const type=isGroupMessage==true?"group":"direct";
-        const response=await axios.delete(`http://localhost:8080/delete`,{
+        const response=await axios.delete(`https://chatconnect-8iix.onrender.com/delete`,{
           params:{
             msgId:msg.id,
             
