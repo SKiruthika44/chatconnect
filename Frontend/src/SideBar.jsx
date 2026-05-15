@@ -3,7 +3,7 @@ import SidebarHeader from './SidebarHeader'
 
 import SidebarFooter from './SidebarFooter'
 import UserGroupList from './UserGroupList'
-import './css/SideBar.css'
+import './css/Sidebar.css'
 import SearchBar from './SearchBar'
 const SideBar = ({token,setShowEditForm,setGroupCreationForm}) => {
   return (
