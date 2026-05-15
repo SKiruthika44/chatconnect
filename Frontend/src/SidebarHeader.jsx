@@ -1,5 +1,5 @@
 import React from 'react'
-import './css/SideBarHeader.css'
+import './css/SidebarHeader.css'
 const SidebarHeader = ({setGroupCreationForm}) => {
   return (
     <div className='sidebar-header'>
