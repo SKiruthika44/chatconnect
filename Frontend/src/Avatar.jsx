@@ -22,7 +22,7 @@ const Avatar = ({user}) => {
     <div>
 
         {
-            user.profileImage? (<img src={`http://localhost:8080${user.profileImage}`} style={{
+            user.profileImage? (<img src={`https://chatconnect-8iix.onrender.com/profile-image/${user.username}?t=${Date.now()}`} style={{
           width: "40px",
           height: "40px",
           borderRadius: "50%",

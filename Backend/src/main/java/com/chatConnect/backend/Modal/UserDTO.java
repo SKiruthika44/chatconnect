@@ -10,11 +10,11 @@ public class UserDTO {
 
     private LocalDateTime lastSeen;
 
-    private String profileImage;
+    private byte[] profileImage;
 
     private String preferredLanguage="en";
 
-    public UserDTO(long id, String username, LocalDateTime lastSeen,String profileImage,String preferredLanguage) {
+    public UserDTO(long id, String username, LocalDateTime lastSeen,byte[] profileImage,String preferredLanguage) {
         this.id = id;
         this.username = username;
         this.lastSeen=lastSeen;
@@ -22,11 +22,11 @@ public class UserDTO {
         this.preferredLanguage=preferredLanguage;
     }
 
-    public String getProfileImage() {
+    public byte[] getProfileImage() {
         return profileImage;
     }
 
-    public void setProfileImage(String profileImage) {
+    public void setProfileImage(byte[] profileImage) {
         this.profileImage = profileImage;
     }
 

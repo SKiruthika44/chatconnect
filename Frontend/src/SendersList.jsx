@@ -14,10 +14,10 @@ const SendersList = ({stompClient,content,closeForward}) => {
       
       
       if(selected && content){
-        console.log("forwarding..");
+        
         const type=selected.type;
         const data=selected.data;
-        sendMessage(stompClient,type,content,data);
+       
         
         closeForward();
         if(type=="user"){
@@ -28,6 +28,7 @@ const SendersList = ({stompClient,content,closeForward}) => {
           const group=allGroups.find((group)=>group.groupName==selected.data);
           dispatch(setSelectedChatAsGroup(group));
         }
+         sendMessage(stompClient,type,content,data);
         
       }
     }

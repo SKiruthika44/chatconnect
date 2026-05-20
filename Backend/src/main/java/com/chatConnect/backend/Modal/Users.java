@@ -21,14 +21,17 @@ public class Users {
     private LocalDateTime lastSeen=LocalDateTime.now().minusDays(1);
 
 
-    private String profileImage;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] profileImage;
     private String preferredLanguage;
 
-    public String getProfileImage() {
+    public byte[] getProfileImage() {
         return profileImage;
     }
 
-    public void setProfileImage(String profileImage) {
+    public void setProfileImage(byte[] profileImage) {
         this.profileImage = profileImage;
     }
 

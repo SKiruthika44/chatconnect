@@ -109,7 +109,7 @@ public class PresenceEventListener {
             messagedeliveryRepo.save(messageDelivery);
             GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(groupMessage.getMsg_id(), groupMessage.getContent(),groupMessage.getCreatedAt(),"SENT",groupMessage.getSender().getUsername(),groupMessage.getGroupChat().getGroupName());
 
-            if(messagedeliveryRepo.countByMsgIdAndUserId(groupMessage.getMsg_id())==groupMessage.getGroupChat().getGroupMembers().size()-1){
+            if(messagedeliveryRepo.countByMsgIdAndUserId(groupMessage.getMsg_id())==groupMessage.getGroupChat().getGroupMembers().size()){
                 responseMsg.setStatus("DELIVERED");
             }
             simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/group/"+groupMessage.getGroupChat().getId(),responseMsg);

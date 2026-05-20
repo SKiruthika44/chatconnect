@@ -40,7 +40,7 @@ public class EditListener {
 
 
             Users receiver=((ChatMessage)editedMessage).getReceiver();
-            ChatMessageResponseDTO chatMessageResponseDTO=new ChatMessageResponseDTO(editedMessage.getMsg_id(), editedMessage.getContent(),editedMessage.getSender().getUsername(),receiver.getUsername(),editedMessage.getCreatedAt(),"SENT");
+            /*ChatMessageResponseDTO chatMessageResponseDTO=new ChatMessageResponseDTO(editedMessage.getMsg_id(), editedMessage.getContent(),editedMessage.getSender().getUsername(),receiver.getUsername(),editedMessage.getCreatedAt(),"SENT");
             boolean delivered=messageDeliveryRepo.existsByMsgIdAndUserIdByCount(editedMessage.getMsg_id(), receiver.getId());
             if(delivered){
                 chatMessageResponseDTO.setStatus("DELIVERED");
@@ -51,9 +51,13 @@ public class EditListener {
             }
             if(editedMessage.isDeletedForEveryone()){
                 chatMessageResponseDTO.setDeletedForEveryone(true);
-            }
-            simpMessagingTemplate.convertAndSendToUser(editedMessage.getSender().getUsername(),"/queue/message/edit",chatMessageResponseDTO);
-            simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/message/edit",chatMessageResponseDTO);
+            }*/
+
+            ChatMessageEditedResponseDto dto=new ChatMessageEditedResponseDto(editedMessage.getMsg_id(), editedMessage.getContent());
+
+
+            simpMessagingTemplate.convertAndSendToUser(editedMessage.getSender().getUsername(),"/queue/message/edit",dto);
+            simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/message/edit",dto);
 
         }
 

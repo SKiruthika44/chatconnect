@@ -22,34 +22,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
    const isSender=(msg.senderName==loggedInUser.username);
    const isGroupMessage=(selectedChat.type=="group");
     const dispatch=useDispatch();
-   const handleTranslation=async(msgId)=>{
-      try{
-        const response=await axios.get("https://chatconnect-8iix.onrender.com/translate",{
-          params:{
-            msgId:msgId
-            
-          },
-            headers:{
-              Authorization:`Bearer ${token}`
-            }
-          
-        });
-        
-
-        dispatch(updateMessageContent({
-            id:msgId,
-            content:response.data
-
-        }));
-        
-       
-      }
-       catch(error){
-        toast.error(error.response.data.message);
-        console.log(error);
-      }
-      
-    }
+   
 
     const handleEmojiApi=async(emoji)=>{
       try{
@@ -150,7 +123,7 @@ const MessageItem = ({msg,token,stompClient,onEdit}) => {
           {new Date(msg.createdAt).toLocaleString()}
         </span>
         <div className="message-actions">
-          <div className='translate-btn' onClick={()=>{handleTranslation(msg.id,isGroupMessage==true?"group":"direct")}}>🌐 Translate</div>
+          
           <div className="delete-icon" onClick={() => setShowDeleteForm(true)}>
             <Trash size={16} />
           </div>

@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/register", "/log-in").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/profile-image/**").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults());
@@ -74,6 +75,8 @@ public class SecurityConfig {
     }
 
 
+    //https://chatconnect-eight.vercel.app
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -81,6 +84,7 @@ public class SecurityConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("https://chatconnect-eight.vercel.app")
+
                         .allowedMethods("*");
 
             }

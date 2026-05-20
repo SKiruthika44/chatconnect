@@ -53,7 +53,7 @@ const EditForm = ({token,setShowEditForm}) => {
           
           }
         })
-      //console.log(res.data);
+      
       dispatch(updateLoggedInUserProfile(res.data));
       /*setLoggedInUser((prevUser)=>{
       return {
@@ -105,7 +105,7 @@ const EditForm = ({token,setShowEditForm}) => {
              <div className='select-profile'>
                 <h4>Choose file to upload</h4>
                 <input type="file" onChange={UploadProfileImage}></input>
-                {imageUploadSuccess && <h5>profile uploaded</h5>}
+                
                 <button onClick={()=>setShowEditForm(false)}>Close</button>
              </div>
         </div>

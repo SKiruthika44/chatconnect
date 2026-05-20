@@ -5,6 +5,7 @@ import com.chatConnect.backend.Modal.Users;
 import com.chatConnect.backend.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -85,22 +86,10 @@ public class UserService {
 
     public ResponseEntity<?> uploadImage(String username, MultipartFile file) {
         try{
-            Users user=repo.findByUsername(username);
-            String folder="D:/SpringProject/websocket-With-Security/uploads/";
-
-            File dir=new File(folder);
-            if(!dir.exists()){
-                dir.mkdirs();
-            }
-
-            String fileName=System.currentTimeMillis()+"_"+username+"_"+file.getOriginalFilename();
-            String filePath=folder+fileName;
-            file.transferTo(new File(filePath));
-            String dbPath="/uploads/"+fileName;
-
-            user.setProfileImage(dbPath);
-            repo.save(user);
-            return ResponseEntity.ok(dbPath);
+           Users user=repo.findByUsername(username);
+           user.setProfileImage(file.getBytes());
+           repo.save(user);
+           return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.IMAGE_JPEG).body(user.getProfileImage());
         }
         catch(Exception e){
             e.printStackTrace();
@@ -159,5 +148,11 @@ public class UserService {
         }
         return userDTOList;
 
+    }
+
+    public ResponseEntity<?> getProfileImage(String username) {
+        Users user=repo.findByUsername(username);
+
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.IMAGE_JPEG).body(user.getProfileImage());
     }
 }

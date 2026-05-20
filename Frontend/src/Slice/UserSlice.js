@@ -30,6 +30,7 @@ export const UserSlice=createSlice({
 
         }, 
         updateLoggedInUserProfile:(state,action)=>{
+            
             state.loggedInUser={...state.loggedInUser,profileImage:action.payload}
         },
         setVisibleUsers:(state,action)=>{

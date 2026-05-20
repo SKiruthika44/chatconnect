@@ -1,16 +1,26 @@
 # Frontend
-frontend/node_modules/
-frontend/build/
+Frontend/node_modules/
+Frontend/dist/
 
 # Backend
-backend/target/
+Backend/target/
+
+# Microservices
+microservices/**/target/
+
+# Java compiled files
+*.class
 
 # Logs
 *.log
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# Environment
+# Environment files
 .env
+
+# IntelliJ
+.idea/
+*.iml

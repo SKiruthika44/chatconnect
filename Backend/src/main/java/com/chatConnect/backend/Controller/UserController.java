@@ -62,4 +62,11 @@ public class UserController {
     public ResponseEntity<UserDTO> getLoggedInUser(@AuthenticationPrincipal UserPrincipal userPrincipal){
         return service.getLoggedInUser(userPrincipal.getUsername());
     }
+
+    @GetMapping("/profile-image/{username}")
+    public ResponseEntity<?> getProfileImage(@PathVariable String username){
+
+        return service.getProfileImage(username);
+    }
+
 }
