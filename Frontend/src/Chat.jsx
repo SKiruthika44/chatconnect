@@ -15,6 +15,8 @@ import { updateDbGroupChatUnreadCount,updateUiGroupChatUnreadCount,updateDbPriva
 import { getUnReadCountForGroupChat,getUnReadCountForPrivateChat } from './app/services/CountService';
 import { subscribeOnlineUsers,subscribePrivateOnlineUsers,subscribeLastSeen,subscribeGroupMessage,subscribePrivateMessage,  subscribeToNotifyDeleteForMe, subscribeToNotifyDeleteForEveryone, subscribeToNotifyPrivateMessageEmojiCreated, subscribeToEditPrivateChat } from './app/services/SubscriptionService';
 import SendersList from './SendersList';
+import { setMessages } from './Slice/MessageSlice';
+import { setLoading } from './Slice/ChatSlice';
 const Chat = () => {
     const token=localStorage.getItem("token");
     const [stompClient,setStompClient]=useState(null);
@@ -23,7 +25,7 @@ const Chat = () => {
     const selectedChat=useSelector((state)=>state.chat.selectedChat);
     const [groupCreationForm,setGroupCreationForm]=useState(false);
     const [showEditForm,setShowEditForm]=useState(false);
-    
+    const loading=useSelector((state)=>state.chat.loading);
     useEffect(()=>{
         const socket=new SockJS("https://chatconnect-8iix.onrender.com/ws");
         const client=new Client({
@@ -75,6 +77,8 @@ const Chat = () => {
 
         if(selectedChat){
             if(selectedChat.type=="direct"){
+                dispatch(setLoading(true));
+                dispatch(setMessages([]));
                 getAllMessagesBetween(token,dispatch);
             
                 updateDbPrivateChatUnreadCount(token);
@@ -90,6 +94,8 @@ const Chat = () => {
         }
 
     },[selectedChat]);
+
+   
 
     useEffect(()=>{
         

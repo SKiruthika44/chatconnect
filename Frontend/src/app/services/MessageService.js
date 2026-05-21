@@ -1,9 +1,11 @@
+import { setLoading } from "../../Slice/ChatSlice";
 import { setMessages } from "../../Slice/MessageSlice";
 import { getAllMessagesBetweenApi } from "../../api/MessageApi";
 import { toast } from "react-toastify";
 export const getAllMessagesBetween=async(token,dispatch)=>{
     try{
         const response=await getAllMessagesBetweenApi(token);
+        dispatch(setLoading(false));
         dispatch(setMessages(response.data));
     }
     catch(error){

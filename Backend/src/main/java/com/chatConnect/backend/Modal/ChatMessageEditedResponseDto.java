@@ -4,17 +4,17 @@ public class ChatMessageEditedResponseDto {
     private Long id;
     private String content;
 
-    public ChatMessageEditedResponseDto(Long msgId, String content) {
-        this.id = msgId;
+    public ChatMessageEditedResponseDto(Long id, String content) {
+        this.id = id;
         this.content = content;
     }
 
-    public Long getMsgId() {
+    public Long getId() {
         return id;
     }
 
-    public void setMsgId(Long msgId) {
-        this.id = msgId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getContent() {

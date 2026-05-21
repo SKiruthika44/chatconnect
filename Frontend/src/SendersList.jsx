@@ -9,7 +9,16 @@ const SendersList = ({stompClient,content,closeForward}) => {
     const allUsers=useSelector((state)=>state.user.allUsers);
     const allGroups=useSelector((state)=>state.group.allGroups);
     const [selected,setSelected]=useState(null);
+    const [forwarding,setForwarding]=useState(false);
+    const loading=useSelector((state)=>state.chat.loading);
     const dispatch=useDispatch();
+
+    useEffect(()=>{
+      if(!loading && forwarding){
+        sendMessage(stompClient,forwarding.type,content,forwarding.data);
+          setForwarding(false);
+      }
+    },[loading]);
     const handleForwarding=()=>{
      
       
@@ -18,7 +27,7 @@ const SendersList = ({stompClient,content,closeForward}) => {
         
         const type=selected.type;
         const data=selected.data;
-       
+       setForwarding(true);
         
         closeForward();
         if(type=="user"){
@@ -32,10 +41,9 @@ const SendersList = ({stompClient,content,closeForward}) => {
           dispatch(setMessages([]));
           dispatch(setSelectedChatAsGroup(group));
         }
-        setTimeout(()=>{
-          sendMessage(stompClient,type,content,data);
-          
-        },2000);
+
+        
+        
          
         
       }

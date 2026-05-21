@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit"
 
 const initialState={
-    selectedChat:null
+    selectedChat:null,
+    loading:false
 }
 export  const ChatSlice=createSlice({
     name:"chat",
@@ -19,9 +20,12 @@ export  const ChatSlice=createSlice({
                 data:action.payload
             }
         },
+        setLoading:(state,action)=>{
+            state.loading=action.payload
+        }
 
 
     }
 })
-export const {setSelectedChatAsDirect,setSelectedChatAsGroup}=ChatSlice.actions;
+export const {setSelectedChatAsDirect,setSelectedChatAsGroup,setLoading}=ChatSlice.actions;
 export default ChatSlice.reducer;
