@@ -19,8 +19,8 @@ export const subscribeOnlineUsers=(client,dispatch)=>{
 export const subscribeToEditPrivateChat=(client,dispatch)=>{
     client.subscribe("/user/queue/message/edit",(msg)=>{
         const updatedMessage=JSON.parse(msg.body);
-        
-        dispatch(updateMessage(updatedMessage));
+        console.log(updatedMessage);
+        dispatch(updateMessageContent(updatedMessage));
     })
 }
 

@@ -54,8 +54,8 @@ public class EditListener {
             }*/
 
             ChatMessageEditedResponseDto dto=new ChatMessageEditedResponseDto(editedMessage.getMsg_id(), editedMessage.getContent());
-            System.out.println("dto="+dto);
-
+            System.out.println("dto="+dto.getContent());
+            System.out.println("dto="+dto.getMsgId());
             simpMessagingTemplate.convertAndSendToUser(editedMessage.getSender().getUsername(),"/queue/message/edit",dto);
             simpMessagingTemplate.convertAndSendToUser(receiver.getUsername(),"/queue/message/edit",dto);
 

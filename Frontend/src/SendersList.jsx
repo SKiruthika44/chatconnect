@@ -35,7 +35,7 @@ const SendersList = ({stompClient,content,closeForward}) => {
         setTimeout(()=>{
           sendMessage(stompClient,type,content,data);
           
-        },1000);
+        },2000);
          
         
       }
