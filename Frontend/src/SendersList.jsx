@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { sendMessage } from './app/services/MessageService';
 import { setSelectedChatAsDirect, setSelectedChatAsGroup } from './Slice/ChatSlice';
 import './css/ForwardList.css'
+import { setMessages } from './Slice/MessageSlice';
 const SendersList = ({stompClient,content,closeForward}) => {
     const allUsers=useSelector((state)=>state.user.allUsers);
     const allGroups=useSelector((state)=>state.group.allGroups);
@@ -22,13 +23,20 @@ const SendersList = ({stompClient,content,closeForward}) => {
         closeForward();
         if(type=="user"){
           const user=allUsers.find((user)=>user.username==selected.data);
+          dispatch(setMessages([]));
           dispatch(setSelectedChatAsDirect(user));
+          
         }
         else{
           const group=allGroups.find((group)=>group.groupName==selected.data);
+          dispatch(setMessages([]));
           dispatch(setSelectedChatAsGroup(group));
         }
-         sendMessage(stompClient,type,content,data);
+        setTimeout(()=>{
+          sendMessage(stompClient,type,content,data);
+          
+        },1000);
+         
         
       }
     }
