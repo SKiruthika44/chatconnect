@@ -16,7 +16,8 @@ import { getUnReadCountForGroupChat,getUnReadCountForPrivateChat } from './app/s
 import { subscribeOnlineUsers,subscribePrivateOnlineUsers,subscribeLastSeen,subscribeGroupMessage,subscribePrivateMessage,  subscribeToNotifyDeleteForMe, subscribeToNotifyDeleteForEveryone, subscribeToNotifyPrivateMessageEmojiCreated, subscribeToEditPrivateChat } from './app/services/SubscriptionService';
 import SendersList from './SendersList';
 import { setMessages } from './Slice/MessageSlice';
-import { setLoading } from './Slice/ChatSlice';
+import { setLoading,setForwarding,setForwardingData} from './Slice/ChatSlice';
+import axios from 'axios';
 const Chat = () => {
     const token=localStorage.getItem("token");
     const [stompClient,setStompClient]=useState(null);
@@ -25,8 +26,70 @@ const Chat = () => {
     const selectedChat=useSelector((state)=>state.chat.selectedChat);
     const [groupCreationForm,setGroupCreationForm]=useState(false);
     const [showEditForm,setShowEditForm]=useState(false);
+    const forwarding=useSelector((state)=>state.chat.forwarding);
+    const forwardingData=useSelector((state)=>state.chat.forwardingData);
     const loading=useSelector((state)=>state.chat.loading);
     useEffect(()=>{
+        let client=null;
+        const initializeWebsocket=async()=>{
+             try{
+                await axios.get("https://chatconnect-8iix.onrender.com/ping");
+                console.log("Backend awake");
+                const socket=new SockJS("https://chatconnect-8iix.onrender.com/ws");
+                client=new Client({
+                        webSocketFactory:()=>socket,
+                        reconnectDelay:5000
+                })
+                client.connectHeaders={
+                        Authorization:`Bearer ${token}`,
+                 };
+                client.onConnect=(frame)=>{
+                        subscribedGroupRef.current.clear();
+            
+                        subscribeOnlineUsers(client,dispatch);
+                        subscribePrivateOnlineUsers(client,dispatch);
+                        subscribeLastSeen(client,dispatch);
+                        subscribeGroupMessage(client,dispatch,subscribedGroupRef,token);
+                        subscribePrivateMessage(client,dispatch,token);
+                        subscribeToNotifyDeleteForEveryone(client,dispatch);
+                        subscribeToNotifyDeleteForMe(client,dispatch);
+                        subscribeToEditPrivateChat(client,dispatch);
+                         subscribeToNotifyPrivateMessageEmojiCreated(client,dispatch);
+                client.publish({
+                    destination:"/app/ready",
+                    body:"{}"
+                });
+
+        }
+        client.onStompError=(frame)=>{
+            console.log(frame);
+        }
+        client.activate();
+        setStompClient(client);
+
+
+            }catch(error){
+             console.log("Backend still waking up", error);
+
+            
+            setTimeout(() => {
+                initializeWebsocket();
+            }, 3000);
+        }
+        }
+
+        initializeWebsocket();
+        return () => {
+
+        console.log("closing websocket connection");
+
+        if (client) {
+            client.deactivate();
+        }
+    };
+
+    },[token]);
+   /* useEffect(()=>{
         const socket=new SockJS("https://chatconnect-8iix.onrender.com/ws");
         const client=new Client({
             webSocketFactory:()=>socket,
@@ -62,7 +125,7 @@ const Chat = () => {
             console.log("closing the websocket connection");
             client.deactivate();
         };
-    },[token]);
+    },[token]);*/
 
     useEffect(()=>{
         getLoggedInUser(token,dispatch);
@@ -100,6 +163,16 @@ const Chat = () => {
     useEffect(()=>{
         
     },[subscribedGroupRef])
+
+    useEffect(()=>{
+      console.log("inside loading useeffect");
+      if(!loading && forwarding && forwardingData){
+        console.log("forwarding msg");
+        sendMessage(stompClient,forwardingData.type,forwardingData.content,forwardingData.data);
+        dispatch(setForwarding(false));
+        dispatch(setForwardingData(null));
+      } 
+    },[loading]);
     
   return (
     <div className="container">
