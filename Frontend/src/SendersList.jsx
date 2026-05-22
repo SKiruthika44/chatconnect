@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector,useDispatch } from 'react-redux';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { sendMessage } from './app/services/MessageService';
 import { setSelectedChatAsDirect, setSelectedChatAsGroup } from './Slice/ChatSlice';
 import './css/ForwardList.css'
@@ -15,7 +15,7 @@ const SendersList = ({stompClient,content,closeForward}) => {
 
     useEffect(()=>{
       if(!loading && forwarding){
-        sendMessage(stompClient,forwarding.type,content,forwarding.data);
+        sendMessage(stompClient,selected.type,content,selected.data);
           setForwarding(false);
       }
     },[loading]);
