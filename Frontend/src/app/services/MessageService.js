@@ -16,6 +16,7 @@ export const getAllMessagesBetween=async(token,dispatch)=>{
 }
 
 export const sendMessage=async (stompClient,type,content,receiverName) => {
+    console.log("inside msg sending");
     if(stompClient){
         if(type=="group"){
             stompClient.publish({

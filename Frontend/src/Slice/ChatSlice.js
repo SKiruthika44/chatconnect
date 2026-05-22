@@ -2,7 +2,9 @@ import { createSlice } from "@reduxjs/toolkit"
 
 const initialState={
     selectedChat:null,
-    loading:false
+    loading:false,
+    forwarding:false,
+    forwardingData:null
 }
 export  const ChatSlice=createSlice({
     name:"chat",
@@ -22,10 +24,16 @@ export  const ChatSlice=createSlice({
         },
         setLoading:(state,action)=>{
             state.loading=action.payload
+        },
+         setForwarding:(state,action)=>{
+            state.forwarding=action.payload
+        },
+         setForwardingData:(state,action)=>{
+            state.forwardingData=action.payload
         }
 
 
     }
 })
-export const {setSelectedChatAsDirect,setSelectedChatAsGroup,setLoading}=ChatSlice.actions;
+export const {setSelectedChatAsDirect,setSelectedChatAsGroup,setLoading,setForwarding,setForwardingData}=ChatSlice.actions;
 export default ChatSlice.reducer;

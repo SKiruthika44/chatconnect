@@ -2,32 +2,42 @@ import React from 'react'
 import { useSelector,useDispatch } from 'react-redux';
 import { useState,useEffect } from 'react';
 import { sendMessage } from './app/services/MessageService';
-import { setSelectedChatAsDirect, setSelectedChatAsGroup } from './Slice/ChatSlice';
+import { setForwarding, setForwardingData, setSelectedChatAsDirect, setSelectedChatAsGroup } from './Slice/ChatSlice';
 import './css/ForwardList.css'
 import { setMessages } from './Slice/MessageSlice';
 const SendersList = ({stompClient,content,closeForward}) => {
     const allUsers=useSelector((state)=>state.user.allUsers);
     const allGroups=useSelector((state)=>state.group.allGroups);
     const [selected,setSelected]=useState(null);
-    const [forwarding,setForwarding]=useState(false);
+    
     const loading=useSelector((state)=>state.chat.loading);
+    const forwarding=useSelector((state)=>state.chat.forwarding);
+    const forwardingData=useSelector((state)=>state.chat.forwardingData);
     const dispatch=useDispatch();
 
     useEffect(()=>{
-      if(!loading && forwarding){
-        sendMessage(stompClient,selected.type,content,selected.data);
-          setForwarding(false);
+      console.log("inside loding useeffect");
+      if(!loading && forwarding && forwardingData){
+        console.log("forwarding msg");
+        sendMessage(stompClient,forwardingData.type,forwardingData.content,forwardingData.data);
+        dispatch(setForwarding(false));
+        dispatch(setForwardingData(null));
       }
     },[loading]);
     const handleForwarding=()=>{
      
+      console.log("forwarding starts");
       
-      
-      if(selected && content){
+      if(selected && content ){
         
         const type=selected.type;
         const data=selected.data;
-       setForwarding(true);
+       dispatch(setForwarding(true));
+       dispatch(setForwardingData({
+        type:type,
+        data:data,
+        content:content
+       }))
         
         closeForward();
         if(type=="user"){

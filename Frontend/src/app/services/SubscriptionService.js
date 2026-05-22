@@ -198,7 +198,7 @@ const subscribeToPrivateGroup=(groupId,client,dispatch)=>{
 export const subscribePrivateMessage=(client,dispatch,token)=>{
     client.subscribe("/user/queue/private",(msg)=>{
         const message=JSON.parse(msg.body);
-        
+        console.log(message);
         const senderusername = message.senderName;
         const receiverusername = message.receiverName;
         const selectedChat=Store.getState().chat.selectedChat;
