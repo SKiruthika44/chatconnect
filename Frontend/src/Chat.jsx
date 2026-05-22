@@ -140,9 +140,10 @@ const Chat = () => {
     useEffect(()=>{
 
         if(selectedChat){
+            dispatch(setLoading(true));
+            dispatch(setMessages([]));
             if(selectedChat.type=="direct"){
-                dispatch(setLoading(true));
-                dispatch(setMessages([]));
+                
                 getAllMessagesBetween(token,dispatch);
             
                 updateDbPrivateChatUnreadCount(token);
@@ -179,7 +180,7 @@ const Chat = () => {
         console.log("forwarding",forwarding);
     },[forwarding]);
     useEffect(()=>{
-        console.log("forwardingData",forwarding);
+        console.log("forwardingData",forwardingData);
     },[forwardingData]);
   return (
     <div className="container">
