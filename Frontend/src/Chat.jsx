@@ -16,6 +16,7 @@ import { getUnReadCountForGroupChat,getUnReadCountForPrivateChat } from './app/s
 import { subscribeOnlineUsers,subscribePrivateOnlineUsers,subscribeLastSeen,subscribeGroupMessage,subscribePrivateMessage,  subscribeToNotifyDeleteForMe, subscribeToNotifyDeleteForEveryone, subscribeToNotifyPrivateMessageEmojiCreated, subscribeToEditPrivateChat } from './app/services/SubscriptionService';
 import SendersList from './SendersList';
 import { setMessages } from './Slice/MessageSlice';
+import { sendMessage } from './app/services/MessageService';
 import { setLoading,setForwarding,setForwardingData} from './Slice/ChatSlice';
 import axios from 'axios';
 const Chat = () => {
@@ -166,6 +167,7 @@ const Chat = () => {
 
     useEffect(()=>{
       console.log("inside loading useeffect");
+      console.log(loading);
       if(!loading && forwarding && forwardingData){
         console.log("forwarding msg");
         sendMessage(stompClient,forwardingData.type,forwardingData.content,forwardingData.data);
@@ -173,7 +175,12 @@ const Chat = () => {
         dispatch(setForwardingData(null));
       } 
     },[loading]);
-    
+    useEffect(()=>{
+        console.log("forwarding",forwarding);
+    },[forwarding]);
+    useEffect(()=>{
+        console.log("forwardingData",forwarding);
+    },[forwardingData]);
   return (
     <div className="container">
        

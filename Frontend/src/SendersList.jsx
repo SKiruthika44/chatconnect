@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector,useDispatch } from 'react-redux';
 import { useState,useEffect } from 'react';
-import { sendMessage } from './app/services/MessageService';
+
 import { setForwarding, setForwardingData, setSelectedChatAsDirect, setSelectedChatAsGroup } from './Slice/ChatSlice';
 import './css/ForwardList.css'
 import { setMessages } from './Slice/MessageSlice';
@@ -11,19 +11,10 @@ const SendersList = ({stompClient,content,closeForward}) => {
     const [selected,setSelected]=useState(null);
     
     const loading=useSelector((state)=>state.chat.loading);
-    const forwarding=useSelector((state)=>state.chat.forwarding);
-    const forwardingData=useSelector((state)=>state.chat.forwardingData);
+    
     const dispatch=useDispatch();
 
-    useEffect(()=>{
-      console.log("inside loding useeffect");
-      if(!loading && forwarding && forwardingData){
-        console.log("forwarding msg");
-        sendMessage(stompClient,forwardingData.type,forwardingData.content,forwardingData.data);
-        dispatch(setForwarding(false));
-        dispatch(setForwardingData(null));
-      }
-    },[loading]);
+    
     const handleForwarding=()=>{
      
       console.log("forwarding starts");
@@ -42,13 +33,13 @@ const SendersList = ({stompClient,content,closeForward}) => {
         closeForward();
         if(type=="user"){
           const user=allUsers.find((user)=>user.username==selected.data);
-          dispatch(setMessages([]));
+          
           dispatch(setSelectedChatAsDirect(user));
           
         }
         else{
           const group=allGroups.find((group)=>group.groupName==selected.data);
-          dispatch(setMessages([]));
+          
           dispatch(setSelectedChatAsGroup(group));
         }
 
