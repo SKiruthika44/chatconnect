@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 export const getAllMessagesForSelectedGroup=async(token,dispatch)=>{
     try{
         const response=await getAllMessagesForSelectedGroupApi(token);
+        dispatch(setLoading(false));
         dispatch(setMessages(response.data));
     }
     catch(error){
