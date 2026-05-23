@@ -9,7 +9,7 @@ export const getAllMessagesForSelectedGroup=async(token,dispatch)=>{
         dispatch(setMessages(response.data));
     }
     catch(error){
-        toast.error(error.response.data.message);
+        toast.error(error.response?.data?.message);
         console.log("groupmessages for selected group error",error);
     }
 }

@@ -8,3 +8,9 @@
   font-family: Arial, sans-serif;
   
 }
+.chat-loader{
+  flex:1;
+   display:flex;
+   justify-content:center;
+   align-items:center;
+}
