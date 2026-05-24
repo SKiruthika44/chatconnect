@@ -26,14 +26,15 @@
   color: #66aaff;
 }
 
+
 .back-btn{
   background: transparent;
   border: none;
   color: #fff;
-  font-size: 24px;
+  font-size: 32px;
   cursor: pointer;
-  margin-right: 10px;
-  padding: 4px 10px;
+  margin-right: 12px;
+  padding: 8px 14px;
   border-radius: 50%;
 }
 
