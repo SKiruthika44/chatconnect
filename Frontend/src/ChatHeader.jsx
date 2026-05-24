@@ -1,19 +1,25 @@
 //import { Stethoscope } from 'lucide-react'
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Avatar from './Avatar';
 import GroupProfile from './assets/GroupProfile.png';
 import './css/ChatHeader.css'
-const ChatHeader = () => {
+import { setSelectedChat } from './Slice/ChatSlice';
+const ChatHeader = ({isMobile}) => {
   const selectedChat=useSelector((state)=>state.chat.selectedChat);
   const onlineUsers=useSelector((state)=>state.user.onlineUsers);
   const allUsers=useSelector((state)=>state.user.allUsers);
+  const dispatch=useDispatch();
   const getLastSeen=()=>{
    const selectedUser=allUsers.find((user)=>user.id==selectedChat.data.id);
    return selectedUser?.lastSeen;
   }
   return (
     <div className='chatheader'>
+      {
+        isMobile && <button className='back-btn' onClick={()=>dispatch(setSelectedChat(null))}>←</button>
+      }
+
         {
             selectedChat.type=="direct"?  <Avatar user={selectedChat.data}/> : <img style={{width:"40px",height:"40px",borderRadius:"50%"}}src={GroupProfile}/>
         }

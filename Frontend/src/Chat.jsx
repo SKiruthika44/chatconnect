@@ -30,6 +30,7 @@ const Chat = () => {
     const forwarding=useSelector((state)=>state.chat.forwarding);
     const forwardingData=useSelector((state)=>state.chat.forwardingData);
     const loading=useSelector((state)=>state.chat.loading);
+    const isMobile=window.innerWidth<=768;
     useEffect(()=>{
         let client=null;
         const initializeWebsocket=async()=>{
@@ -90,43 +91,7 @@ const Chat = () => {
     };
 
     },[token]);
-   /* useEffect(()=>{
-        const socket=new SockJS("https://chatconnect-8iix.onrender.com/ws");
-        const client=new Client({
-            webSocketFactory:()=>socket,
-            reconnectDelay:5000
-        })
-        client.connectHeaders={
-            Authorization:`Bearer ${token}`,
-        };
-        client.onConnect=(frame)=>{
-            subscribedGroupRef.current.clear();
-            
-            subscribeOnlineUsers(client,dispatch);
-            subscribePrivateOnlineUsers(client,dispatch);
-            subscribeLastSeen(client,dispatch);
-            subscribeGroupMessage(client,dispatch,subscribedGroupRef,token);
-            subscribePrivateMessage(client,dispatch,token);
-            subscribeToNotifyDeleteForEveryone(client,dispatch);
-            subscribeToNotifyDeleteForMe(client,dispatch);
-            subscribeToEditPrivateChat(client,dispatch);
-            subscribeToNotifyPrivateMessageEmojiCreated(client,dispatch);
-            client.publish({
-                destination:"/app/ready",
-                body:"{}"
-            });
-
-        }
-        client.onStompError=(frame)=>{
-            console.log(frame);
-        }
-        client.activate();
-        setStompClient(client);
-        return ()=>{
-            console.log("closing the websocket connection");
-            client.deactivate();
-        };
-    },[token]);*/
+  
 
     useEffect(()=>{
         getLoggedInUser(token,dispatch);
@@ -184,9 +149,18 @@ const Chat = () => {
     },[forwardingData]);
   return (
     <div className="container">
+        {
+            (!isMobile || selectedChat) && selectedChat && 
+            <ChatContainer stompClient={stompClient} token={token} isMobile={isMobile}/>
+        }
+
+        {
+            (!isMobile || !selectedChat) && 
+            <SideBar token={token} setGroupCreationForm={setGroupCreationForm} setShowEditForm={setShowEditForm}/>
+        }
+        
        
-        <SideBar token={token} setGroupCreationForm={setGroupCreationForm} setShowEditForm={setShowEditForm}/>
-        { selectedChat && <ChatContainer stompClient={stompClient} token={token} />}
+
         {
             groupCreationForm && <GroupCreationForm token={token} setGroupCreationForm={setGroupCreationForm}/>
         }

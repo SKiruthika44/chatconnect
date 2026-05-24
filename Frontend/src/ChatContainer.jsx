@@ -5,7 +5,7 @@ import MessageInput from './MessageInput'
 import {ThreeDots} from 'react-loader-spinner'
 import './css/Chatcontainer.css'
 import { useSelector } from 'react-redux'
-const ChatContainer = ({stompClient,token}) => {
+const ChatContainer = ({stompClient,token,isMobile}) => {
   const [editingMessage,setEditingMessage]=useState(null);
   const loading=useSelector((state)=>state.chat.loading);
   const forwarding=useSelector((state)=>state.chat.forwarding);
@@ -15,7 +15,7 @@ const ChatContainer = ({stompClient,token}) => {
   }
   return (
     <div className='chat-container'>
-        <ChatHeader/>
+        <ChatHeader isMobile={isMobile}/>
         {
           loading?<div className="chat-loader"><ThreeDots height="80" width="80" color="white"/></div>:<MessageList token={token} stompClient={stompClient} onEdit={onEdit}/>
         }

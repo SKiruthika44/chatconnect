@@ -22,6 +22,9 @@ export  const ChatSlice=createSlice({
                 data:action.payload
             }
         },
+        setSelectedChat:(state,action)=>{
+            state.selectedChat=action.payload
+        },
         setLoading:(state,action)=>{
             state.loading=action.payload
         },
@@ -35,5 +38,5 @@ export  const ChatSlice=createSlice({
 
     }
 })
-export const {setSelectedChatAsDirect,setSelectedChatAsGroup,setLoading,setForwarding,setForwardingData}=ChatSlice.actions;
+export const {setSelectedChatAsDirect,setSelectedChatAsGroup,setLoading,setForwarding,setForwardingData,setSelectedChat}=ChatSlice.actions;
 export default ChatSlice.reducer;

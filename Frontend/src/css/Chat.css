@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  height: 100vh;
+  height: 100dvh;
   margin: 0;
   padding: 0;
   background: #111;
@@ -8,4 +8,13 @@
   color: #fff;
   font-family: Arial, sans-serif;
   overflow: hidden; 
+}
+
+@media screen and (max-width:768px){
+  .sidebar-container{
+    width:100%;
+  }
+  .chat-container{
+    width:100%;
+  }
 }

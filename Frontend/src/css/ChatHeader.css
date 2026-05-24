@@ -25,3 +25,18 @@
 .name-status h5 {
   color: #66aaff;
 }
+
+.back-btn{
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: 10px;
+  padding: 4px 10px;
+  border-radius: 50%;
+}
+
+.back-btn:hover{
+  background:#2a2a2a;
+}
