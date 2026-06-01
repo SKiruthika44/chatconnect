@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
     const selectedChat=useSelector((state)=>state.chat.selectedChat);
     const [privateInput,setPrivateInput]=useState("");
-
+    console.log("Message input called");
     useEffect(()=>{
       if(editingMessage){
         setPrivateInput(editingMessage.msg.content);
@@ -126,7 +126,9 @@ const MessageInput = ({stompClient,editingMessage,token,onEdit}) => {
       }
      
     }*/
-    
+    useEffect(()=>{
+      console.log("message input rendered");
+    },[]);
   
   
   return (

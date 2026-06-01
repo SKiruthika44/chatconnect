@@ -149,15 +149,16 @@ const Chat = () => {
     },[forwardingData]);
   return (
     <div className="container">
+         {
+            (!isMobile || !selectedChat) && 
+            <SideBar token={token} setGroupCreationForm={setGroupCreationForm} setShowEditForm={setShowEditForm}/>
+        }
         {
             (!isMobile || selectedChat) && selectedChat && 
             <ChatContainer stompClient={stompClient} token={token} isMobile={isMobile}/>
         }
 
-        {
-            (!isMobile || !selectedChat) && 
-            <SideBar token={token} setGroupCreationForm={setGroupCreationForm} setShowEditForm={setShowEditForm}/>
-        }
+       
         
        
 
