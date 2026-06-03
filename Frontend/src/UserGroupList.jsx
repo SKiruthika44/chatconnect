@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Store from './app/Store'
 import UserItem from './UserItem';
 import GroupItem from './GroupItem';
@@ -9,8 +9,11 @@ const UserGroupList = () => {
   const allGroups=useSelector((state)=>state.group.allGroups);
   const visibleUsers=useSelector((state)=>state.user.visibleUsers);
   const visibleGroups=useSelector((state)=>state.group.visibleGroups);
-
+  useEffect(()=>{
+    console.log(allUsers);
+  },[allUsers]);
   return (
+    
     <div className='user-group-list'>
         <h4>Personal Chats</h4>
         <div className="user-list">
