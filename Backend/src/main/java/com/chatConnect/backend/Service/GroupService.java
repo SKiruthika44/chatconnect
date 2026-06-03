@@ -237,7 +237,6 @@ public class GroupService {
     }
 
     @Transactional
-
     public   void markGroupMessageRead(String username, long msgId) {
 
         Users user=userRepo.findByUsername(username);
@@ -260,7 +259,10 @@ public class GroupService {
 
 
                    long readUsersCount=messageReadRepo.countReadUsers(groupMessage.getMsg_id());
+                   System.out.println("username:"+username);
+                   System.out.println("read count"+readUsersCount);
                    if(readUsersCount==groupMessage.getGroupChat().getGroupMembers().size()){
+                       System.out.println("read completed");
                        GroupMessageResponseDTO responseMsg=new GroupMessageResponseDTO(groupMessage.getMsg_id(),groupMessage.getContent(),groupMessage.getCreatedAt(),"READ",groupMessage.getSender().getUsername(),groupMessage.getGroupChat().getGroupName());
                        simpMessagingTemplate.convertAndSendToUser(groupMessage.getSender().getUsername(),"/queue/group/"+groupMessage.getGroupChat().getId(),responseMsg);
                    }

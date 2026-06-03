@@ -127,6 +127,7 @@ public class UserService {
             for(Users user:users){
                 if(!user.getUsername().equals(username)){
                     UserDTO userDTO=new UserDTO(user.getId(),user.getUsername(),user.getLastSeen(),user.getProfileImage(),user.getPreferredLanguage());
+                    System.out.println("userDto:"+userDTO);
                     userDTOList.add(userDTO);
                 }
 

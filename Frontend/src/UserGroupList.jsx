@@ -10,8 +10,8 @@ const UserGroupList = () => {
   const visibleUsers=useSelector((state)=>state.user.visibleUsers);
   const visibleGroups=useSelector((state)=>state.group.visibleGroups);
   useEffect(()=>{
-    console.log(allUsers);
-  },[allUsers]);
+    console.log(visibleUsers);
+  },[visibleUsers]);
   return (
     
     <div className='user-group-list'>
