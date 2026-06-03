@@ -9,9 +9,10 @@ const ChatHeader = ({isMobile}) => {
   const selectedChat=useSelector((state)=>state.chat.selectedChat);
   const onlineUsers=useSelector((state)=>state.user.onlineUsers);
   const allUsers=useSelector((state)=>state.user.allUsers);
+  const visibleUsers=useSelector((state)=>state.user.visibleUsers);
   const dispatch=useDispatch();
   const getLastSeen=()=>{
-   const selectedUser=allUsers.find((user)=>user.id==selectedChat.data.id);
+   const selectedUser=visibleUsers.find((user)=>user.id==selectedChat.data.id);
    return selectedUser?.lastSeen;
   }
   return (
