@@ -15,22 +15,49 @@ const UserGroupList = () => {
   return (
     
     <div className='user-group-list'>
+      
         <h4>Personal Chats</h4>
-        <div className="user-list">
+
+        {
+          visibleUsers.length==0 ? (
+            <div className='empty-chat-list'>
+              <p>No chats yet.</p>
+              <p>Search users to start chatting.</p>
+            </div>
+
+
+          ):(
+             <div className="user-list">
                 {visibleUsers.map((user) => (
                     <UserItem key={user.username} user={user} />
               
                 ))}
         </div>
 
+          )
+        }
+       
+
         <h4>Group Chats</h4>
-        <div className="group-list">
+        {
+          visibleGroups.length==0 ?(
+           <div className="empty-group-list">
+              <p>No Groups yet</p>
+              <p>Create or join a group to get started.</p>
+           </div>
+
+
+          ):(
+             <div className="group-list">
               {
                 visibleGroups.map((group)=>(
                 <GroupItem key={group.id} group={group}/>
               ))
               }
         </div>
+          )
+        }
+       
       
     </div>
   )
