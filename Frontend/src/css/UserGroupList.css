@@ -9,14 +9,13 @@
   font-size: 14px;
   color: #bbb;
 }
-.empty-chat-list p,
-.empty-group-list p {
+.empty-chat-list p
+ {
   margin: 6px 0;
   color: #aaa;
   font-size: 14px;
   text-align: center;
 }
-.empty-chat-list,
-.empty-group-list {
+.empty-chat-list{
   padding: 20px 10px;
 }
