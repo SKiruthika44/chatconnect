@@ -71,3 +71,22 @@ body {
 p{
   margin-bottom:10px;
 }
+.login-loader {
+  margin-top: 15px;
+  text-align: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.login-loader p {
+  margin: 5px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+.login-loader p:first-child {
+  font-weight: bold;
+  color: #0077ff;
+}

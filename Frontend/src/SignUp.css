@@ -80,3 +80,23 @@
 .login-link a:hover {
   text-decoration: underline;
 }
+
+.signup-loader {
+  margin-top: 15px;
+  text-align: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.signup-loader p {
+  margin: 5px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+.signup-loader p:first-child {
+  font-weight: bold;
+  color: #0077ff;
+}

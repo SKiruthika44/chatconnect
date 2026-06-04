@@ -7,7 +7,7 @@ import {useNavigate} from 'react-router-dom'
 
 
 const SignUp = () => {
-
+  const [signupLoading,setSignupLoading]=useState(false);
   const [password,setPassword]=useState("");
   const [username,setUsername]=useState("");
   const [confirmPassword,setConfirmPassword]=useState("");
@@ -49,6 +49,7 @@ const SignUp = () => {
       password:password
     }
     try{
+      setSignupLoading(true);
       const res=await axios.post("https://chatconnect-8iix.onrender.com/register",payload);
       
       setMsg("Account created successfully");
@@ -71,6 +72,9 @@ const SignUp = () => {
         
       }
       
+    }
+    finally{
+      setSignupLoading(false);
     }
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
@@ -95,7 +99,15 @@ const SignUp = () => {
             </p>
            
               </div>
+            {
+              signupLoading && (
+                <div className="signup-loader">
+                    <p>Connecting to server...</p> 
 
+                    <p>This may take a few moments.</p>
+                </div>
+              )
+            }
             
           </div>
 

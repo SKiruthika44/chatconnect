@@ -6,7 +6,7 @@ import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
-
+  const [loginLoading,setLoginLoading]=useState(false);
   const [username,setUsername]=useState("");
   const [password,setPassword]=useState("");
   const [successMsg,setSuccessMsg]=useState(false);
@@ -29,6 +29,7 @@ const Login = () => {
         password:password
     }
     try{
+      setLoginLoading(true);
         const res=await axios.post("https://chatconnect-8iix.onrender.com/log-in",payload);
         
         setSuccessMsg("logging in....");
@@ -49,6 +50,9 @@ const Login = () => {
         
         
     }
+    finally{
+      setLoginLoading(false);
+    }
   }
   return (
     <div className="login-container">
@@ -63,6 +67,13 @@ const Login = () => {
             <p className='signup-link'>
               Doesn't have an account? <a href='/signup'>Signup</a>
             </p>
+            {
+              loginLoading && <div className="login-loader">
+                 <p>Connecting to server...</p> 
+
+                <p>This may take a few moments.</p>
+              </div>
+            }
             
             
           </div>
