@@ -9,6 +9,10 @@ const UserGroupList = () => {
   const allGroups=useSelector((state)=>state.group.allGroups);
   const visibleUsers=useSelector((state)=>state.user.visibleUsers);
   const visibleGroups=useSelector((state)=>state.group.visibleGroups);
+  const groupLoading=useSelector((state)=>state.group.groupLoading);
+  const usersLoading=useSelector((state)=>state.user.usersLoading);
+  const loggedInUserLoading=useSelector((state)=>state.user.loggedInUserLoading);
+
   useEffect(()=>{
     console.log(visibleUsers);
   },[visibleUsers]);
@@ -16,7 +20,12 @@ const UserGroupList = () => {
     
     <div className='user-group-list'>
       {
-        visibleUsers.length==0 && visibleGroups.length==0 ? (
+        (groupLoading || usersLoading || loggedInUserLoading) ? (
+          <div className="chat-loading">
+            <p>Loading your chats and groups....</p>
+            <p>Please wait while we connect to the server.</p>
+          </div>
+        ):(visibleUsers.length==0 && visibleGroups.length==0 ? (
           <div className="empty-chat-list">
                <p>No chats yet.</p>
               <p>Search users to start chatting.</p>
@@ -44,6 +53,7 @@ const UserGroupList = () => {
          
 
         )
+      )
       }
       
       

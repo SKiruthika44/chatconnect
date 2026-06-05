@@ -1,9 +1,11 @@
-import { setAllUsers, setLoggedInUser, setVisibleUsers } from "../../Slice/UserSlice";
+import { setAllUsers, setLoggedInUser, setLoggedInUserLoading, setUsersLoading, setVisibleUsers } from "../../Slice/UserSlice";
 import { getLoggedInUserApi,getAllUsersApi } from "../../api/userApi";
 import { toast } from "react-toastify";
 export const getLoggedInUser=async(token,dispatch)=>{
     try{
         const response=await getLoggedInUserApi(token);
+        console.log("loggedinuser");
+        dispatch(setLoggedInUserLoading(false));
         dispatch(setLoggedInUser(response.data));
     }
     catch(error){
@@ -15,6 +17,8 @@ export const getLoggedInUser=async(token,dispatch)=>{
 export const getAllUsers=async(token,dispatch)=>{
     try{
         const response=await getAllUsersApi(token);
+        console.log("users");
+        dispatch(setUsersLoading(false));
         dispatch(setAllUsers(response.data));
         dispatch(setVisibleUsers(response.data));
     }

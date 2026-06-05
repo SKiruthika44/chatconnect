@@ -3,7 +3,9 @@ const initialState={
     allUsers:[],
     onlineUsers:[],
     visibleUsers:[],
-    loggedInUser:null
+    loggedInUser:null,
+    usersLoading:true,
+    loggedInUserLoading:true
 }
 export const UserSlice=createSlice({
     name:"user",
@@ -37,9 +39,15 @@ export const UserSlice=createSlice({
             state.visibleUsers=action.payload;
            
 
+        },
+        setLoggedInUserLoading:(state,action)=>{
+            state.loggedInUserLoading=action.payload;
+        },
+        setUsersLoading:(state,action)=>{
+            state.usersLoading=action.payload;
         }
 
     }
 })
-export const {setAllUsers,setLoggedInUser,setOnlineUsers,updateLastSeen,updateLoggedInUserProfile,setVisibleUsers} =UserSlice.actions;
+export const {setAllUsers,setLoggedInUser,setOnlineUsers,updateLastSeen,updateLoggedInUserProfile,setVisibleUsers,setLoggedInUserLoading,setUsersLoading} =UserSlice.actions;
 export default  UserSlice.reducer;

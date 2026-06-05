@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit"
 
 const initialState={
     allGroups:[],
-    visibleGroups:[]
+    visibleGroups:[],
+    groupLoading:true
 }
 export const GroupSlice=createSlice({
     name:"group",
@@ -20,8 +21,11 @@ export const GroupSlice=createSlice({
         },
         setVisibleGroups:(state,action)=>{
             state.visibleGroups=action.payload;
+        },
+        setGroupLoading:(state,action)=>{
+            state.groupLoading=action.payload;
         }
     }
 })
-export const {setAllGroups,addGroup,setVisibleGroups}=GroupSlice.actions;
+export const {setAllGroups,addGroup,setVisibleGroups,setGroupLoading}=GroupSlice.actions;
 export default GroupSlice.reducer;

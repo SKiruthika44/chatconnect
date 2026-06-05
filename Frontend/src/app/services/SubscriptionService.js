@@ -1,5 +1,5 @@
 import { setOnlineUsers, updateLastSeen } from "../../Slice/UserSlice";
-import {setAllGroups, setVisibleGroups}from "../../Slice/GroupSlice";
+import {setAllGroups, setGroupLoading, setVisibleGroups}from "../../Slice/GroupSlice";
 import Store from '../Store'
 import { addMessage, updateMessageStatus,updateMessageDeletion, removeMessage, updateGroupMessageEmoji, updatePrivateMessageEmoji, updateMessage, updateMessageContent } from "../../Slice/MessageSlice.js";
 import { updateUnReadCountForGroup } from "../../Slice/CountSlice.js";
@@ -100,6 +100,8 @@ export const subscribeGroupMessage=(client,dispatch,subscribedGroupRef,token)=>{
         const groups=JSON.parse(group.body);
         
         if(Array.isArray(groups)){
+            console.log("group");
+            dispatch(setGroupLoading(false));
             dispatch(setAllGroups(groups));
             dispatch(setVisibleGroups(groups));
         }
