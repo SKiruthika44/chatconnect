@@ -3,6 +3,8 @@
 
 ChatConnect is a full-stack real-time chat application that supports private messaging and group chats with advanced messaging features such as delivery status tracking, emoji reactions, message translation, and message deletion.
 
+[![Live Demo](https://img.shields.io/badge/Live-Demo-success?style=for-the-badge)](https://chatconnect-eight.vercel.app/)
+
 The application is built using Spring Boot (backend) and React.js (frontend) with WebSocket-based real-time communication.
 
 ## Features
